@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "499307464905",
+    "project_id": "geoscraper-ae801",
+    "storage_bucket": "geoscraper-ae801.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499307464905:android:2c72edcfaabe7a748b2518",
+        "android_client_info": {
+          "package_name": "com.example.geo_scraper_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "499307464905-0ks9g3isib7oa058614pmnqp0aaorqhn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSLODEh4I5cAXuDmCTx1ZRTYw_6450pw4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "499307464905-0ks9g3isib7oa058614pmnqp0aaorqhn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
