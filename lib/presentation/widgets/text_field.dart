@@ -9,17 +9,20 @@ class CustomTextField extends StatefulWidget {
   final bool visibility;
   final TextEditingController? controller;
   final FocusNode? focusNode;
+  final bool readOnly;
 
-  const CustomTextField(
-      {super.key,
-      required this.label,
-      this.keyboardType,
-      this.onPressSuffixIcon,
-      this.prefixIcon,
-      this.suffixIcon,
-      this.visibility = false,
-      this.controller,
-      this.focusNode});
+  const CustomTextField({
+    super.key,
+    required this.label,
+    this.keyboardType,
+    this.onPressSuffixIcon,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.visibility = false,
+    this.controller,
+    this.readOnly = false,
+    this.focusNode,
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -31,6 +34,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      readOnly: widget.readOnly,
       focusNode: widget.focusNode,
       controller: widget.controller,
       keyboardType: widget.keyboardType,

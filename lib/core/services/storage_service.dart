@@ -6,7 +6,8 @@ class StorageService {
   static const String _addressKey = "savedAddress";
   static const String _locationKey = "user_location";
 
-  static Future<void> userLocation(double latitude, double longitude) async {
+  static Future<void> saveUserLocation(
+      double latitude, double longitude) async {
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
 

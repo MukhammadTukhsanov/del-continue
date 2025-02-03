@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
         throw Exception("Incomplete address data");
       }
 
-      await StorageService.userLocation(
+      await StorageService.saveUserLocation(
           position["latitude"]!, position["longitude"]!);
 
       await StorageService.saveAddress(address["street"]!, address["locality"]!,

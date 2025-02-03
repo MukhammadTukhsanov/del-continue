@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
     Main(),
     Center(child: Text("Category Page", style: TextStyle(fontSize: 20))),
     Center(child: Text("Orders Page", style: TextStyle(fontSize: 20))),
-    Profil(), // Add SettingsPage here
+    Profile(), // Add SettingsPage here
   ];
 
   Widget _buildSvgIcon(String assetName, {required bool isSelected}) {
