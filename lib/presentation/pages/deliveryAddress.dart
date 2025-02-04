@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DeliveryAddress extends StatefulWidget {
@@ -138,7 +141,9 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
     {"title": "Home", "address": "Peshko`, O`zbekiston ko`cha"},
     {"title": "Uy", "address": "Peshko`, Amir temur ko`cha"},
   ];
-  int? selectedIndex;
+  int? selectedIndex = 0;
+
+  bool addNewAddress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +162,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Mening manzillarim',
+            addNewAddress ? 'Yangi manzil qo`shish' : 'Mening manzillarim',
             style: TextStyle(
               color: Color(0xff3c486b),
               fontSize: 22,
@@ -165,53 +170,217 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
             ),
           ),
           SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: addresses.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 2,
-                        decoration: BoxDecoration(color: Color(0xffff9556)),
-                      ),
-                      Container(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            left: selectedIndex == index
-                                ? BorderSide(color: Colors.blue, width: 4)
-                                : BorderSide.none,
-                          ),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(0),
+          addNewAddress
+              ? Expanded(child: AddNewAddress())
+              : Expanded(
+                  child: ListView.builder(
+                    itemCount: addresses.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (selectedIndex == index) {
+                              selectedIndex =
+                                  null; // Uncheck if already selected
+                            } else {
+                              selectedIndex = index; // Select new item
+                            }
+                          });
+                        },
+                        child: Row(
+                          children: [
+                            Container(
+                                width: 4,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: selectedIndex == index
+                                        ? Color(0xffff9556)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(4))),
+                            Expanded(
+                              child: ListTile(
+                                  leading: SvgPicture.asset(
+                                    "assets/icons/marker.svg",
+                                    color: Color(0xffff9556),
+                                  ),
+                                  title: Text(
+                                    addresses[index]["title"]!,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xff3c486b),
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    addresses[index]["address"]!,
+                                    style: TextStyle(color: Color(0x903c486b)),
+                                  )),
+                            ),
+                            IconButton(
+                                color: Color(0x903c486b),
+                                onPressed: () {},
+                                icon: Icon(Icons.edit_location_outlined)),
+                          ],
                         ),
-                        child: Text(
-                          addresses[index]["title"]!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xff3c486b),
-                          ),
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
+                ),
+          SizedBox(
+            width: double.infinity,
+            child: addNewAddress
+                ? Row(children: [
+                    Expanded(
+                        child: CustomButton(
+                            text: "Joyni tanlash", onPressed: () {})),
+                    SizedBox(width: 10),
+                    SizedBox(
+                        child: ElevatedButton(
+                      style: ButtonStyle(
+                        fixedSize:
+                            WidgetStateProperty.all(const Size.fromHeight(51)),
+                        backgroundColor:
+                            const WidgetStatePropertyAll(Color(0xfff8f8fa)),
+                        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        )),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          addNewAddress = false;
+                        });
+                      },
+                      child: const Text(
+                        "Ortga",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xff898e96),
+                        ),
+                      ),
+                    ))
+                  ])
+                : TextButton(
+                    onPressed: () {
+                      setState(() {
+                        addNewAddress = true;
+                      });
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Color(0xffff9556),
+                          size: 20,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Yangi manzil qo`shish",
+                          style:
+                              TextStyle(color: Color(0xffff9556), fontSize: 18),
+                        )
+                      ],
+                    )),
+          )
         ],
       ),
+    );
+  }
+}
+
+class AddNewAddress extends StatefulWidget {
+  const AddNewAddress({super.key});
+
+  @override
+  _AddNewAddressState createState() => _AddNewAddressState();
+}
+
+class _AddNewAddressState extends State<AddNewAddress> {
+  final TextEditingController _addressController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Manzil",
+          textAlign: TextAlign.start,
+          style: TextStyle(color: Color(0xff3c486b)),
+        ),
+        CustomTextField(
+          label: "Manzil",
+          controller: _addressController,
+          // focusNode: _focusNode,
+        ),
+        SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  const Text(
+                    "Xonadon",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: Color(0xff3c486b)),
+                  ),
+                  CustomTextField(
+                    label: "02",
+                    controller: _addressController,
+                    // focusNode: _focusNode,
+                  )
+                ])),
+            SizedBox(width: 10),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  const Text(
+                    "Podyezd",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: Color(0xff3c486b)),
+                  ),
+                  CustomTextField(
+                    label: "12",
+                    controller: _addressController,
+                    // focusNode: _focusNode,
+                  )
+                ])),
+            SizedBox(width: 10),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  const Text(
+                    "Uy",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(color: Color(0xff3c486b)),
+                  ),
+                  CustomTextField(
+                    label: "8",
+                    controller: _addressController,
+                    // focusNode: _focusNode,
+                  )
+                ]))
+          ],
+        ),
+        SizedBox(height: 24),
+        const Text(
+          "Izohlar",
+          textAlign: TextAlign.start,
+          style: TextStyle(color: Color(0xff3c486b)),
+        ),
+        CustomTextField(
+          label: "8",
+          controller: _addressController,
+          maxLines: 5,
+          // focusNode: _focusNode,
+        )
+      ],
     );
   }
 }

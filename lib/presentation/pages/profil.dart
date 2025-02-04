@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geo_scraper_mobile/presentation/pages/deliveryAddress.dart';
 import 'package:geo_scraper_mobile/presentation/pages/editPhoneNumber.dart';
+import 'package:geo_scraper_mobile/presentation/pages/favorites.dart';
 import 'package:geo_scraper_mobile/presentation/pages/transactions.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -18,6 +19,10 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+
+  int? selectedIndex = 0;
+
+  List<String> languages = ["Ozbekcha", "Русский"];
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -58,14 +63,19 @@ class _ProfileState extends State<Profile> {
                     MaterialPageRoute(builder: (context) => DeliveryAddress()));
               }),
               const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              _buildProfileListItem("receipt", "Saqlanganlar", () {}),
+              _buildProfileListItem("receipt", "Saqlanganlar", () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Favorites()));
+              }),
             ]),
             _buildProfileSection([
-              _buildProfileListItem("globe", "Qayta aloqa", () {}),
+              _buildProfileListItem("globe", "Qayta aloqa",
+                  () => _openFeedBackBottomDrawer(context)),
               const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              _buildProfileListItem("send", "Til", () {}),
-              const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              _buildProfileListItem("faq", "Savol va javoblar", () {}),
+              _buildProfileListItem(
+                  "send", "Til", () => _openLanguageBottomDrawer(context)),
+              // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
+              // _buildProfileListItem("faq", "Savol va javoblar", () {}),
             ]),
             _buildDeleteButton(),
             _buildLogoutButton(),
@@ -209,7 +219,7 @@ class _ProfileState extends State<Profile> {
       width: double.infinity,
       child: ElevatedButton(
         style: _buttonStyle(),
-        onPressed: () {},
+        onPressed: () => _showLogOutAlertDialog(context),
         child: const Text("Hisobni o`chirish",
             style: TextStyle(
                 fontSize: 16,
@@ -240,6 +250,189 @@ class _ProfileState extends State<Profile> {
       backgroundColor: WidgetStateProperty.all(const Color(0xfff8f8fa)),
       shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+    );
+  }
+
+  void _openLanguageBottomDrawer(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Tilni tanlang',
+                  style: TextStyle(color: Color(0xff3c486b), fontSize: 24),
+                ),
+                const SizedBox(height: 10),
+                Column(
+                  children: List.generate(languages.length, (i) {
+                    return CheckboxListTile(
+                      checkColor: Colors.amber,
+                      activeColor: Colors.transparent,
+                      side: BorderSide(color: Colors.transparent),
+                      title: Text(languages[i],
+                          style: TextStyle(
+                              color: Color(0xff3c486b), fontSize: 16)),
+                      value: selectedIndex == i,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          selectedIndex = i;
+                        });
+                      },
+                    );
+                  }),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _openFeedBackBottomDrawer(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => StatefulBuilder(builder: (context, setState) {
+              return SizedBox(
+                width: double.infinity,
+                height: 182,
+                child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Qayta aloqa',
+                          style:
+                              TextStyle(color: Color(0xff3c486b), fontSize: 24),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/icons/phone.svg",
+                                  color: Color(0xff3c486b),
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                SizedBox(width: 10),
+                                Text("Qo`ng`iroq",
+                                    style: TextStyle(
+                                        color: Color(0xff3c486b), fontSize: 18))
+                              ],
+                            ),
+                          ),
+                        ),
+                        Divider(
+                            color: Color(0x203c486b), height: 1, thickness: 1),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/icons/send.svg",
+                                  color: Color(0xff3c486b),
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                SizedBox(width: 10),
+                                Text("Telegramda yozing",
+                                    style: TextStyle(
+                                        color: Color(0xff3c486b), fontSize: 18))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )),
+              );
+            }));
+  }
+
+  void _showLogOutAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.white,
+          contentPadding: const EdgeInsets.all(20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // Prevents unnecessary space
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                "assets/icons/exit.svg",
+                height: 60,
+                width: 60,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Chiqishni xohlaysizmi?",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Bekor qilish",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Chiqish"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
