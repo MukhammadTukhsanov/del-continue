@@ -79,11 +79,9 @@ class _BasketState extends State<Basket> {
                     "430 000 So`m",
                     style: TextStyle(fontSize: 36, color: Color(0xff3c486b)),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
+                  Container(
                     width: double.infinity,
+                    margin: EdgeInsets.only(top: 10),
                     child: CustomButton(
                       text: "Buyurtma berish",
                       onPressed: () {
@@ -115,6 +113,7 @@ class _BasketState extends State<Basket> {
           content: const SizedBox(
             height: 102,
             child: Column(
+              spacing: 16,
               children: [
                 Text(
                   "Diqqat!",
@@ -124,7 +123,6 @@ class _BasketState extends State<Basket> {
                       fontWeight: FontWeight.w700,
                       fontSize: 24),
                 ),
-                SizedBox(height: 16),
                 Text(
                   "Haqiqatdanham barcha ma`lumotlarni o`chirmoqchimisiz.",
                   style: TextStyle(fontSize: 18, color: Color(0xff3c486b)),
@@ -134,6 +132,7 @@ class _BasketState extends State<Basket> {
           ),
           actions: [
             Row(
+              spacing: 10,
               children: [
                 Expanded(
                     child: ElevatedButton(
@@ -158,9 +157,6 @@ class _BasketState extends State<Basket> {
                     ),
                   ),
                 )),
-                const SizedBox(
-                  width: 10,
-                ),
                 Expanded(
                     child: ElevatedButton(
                   style: ButtonStyle(
@@ -201,12 +197,14 @@ class BasketItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.symmetric(vertical: 10),
       decoration: const BoxDecoration(
           border:
               Border(bottom: BorderSide(width: 1, color: Color(0x203c486b)))),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Row(
+          spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
@@ -219,7 +217,6 @@ class BasketItem extends StatelessWidget {
                       image: NetworkImage(
                           "https://www.coca-cola.com/content/dam/onexp/us/en/brands/coca-cola-original/en_coca-cola-original-taste-20-oz_750x750_v1.jpg/width1960.jpg"))),
             ),
-            const SizedBox(width: 10),
             Expanded(
                 child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +296,6 @@ class BasketItem extends StatelessWidget {
                     )
                   ],
                 ),
-                const SizedBox(height: 12)
               ],
             ))
           ],

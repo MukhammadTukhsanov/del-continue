@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geo_scraper_mobile/core/providers/address_provider.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/home.dart';
 import 'package:geo_scraper_mobile/presentation/services/geocoding_service.dart';
-import 'package:provider/provider.dart';
 import '../services/location_service.dart';
 
 class SplashScreen extends StatefulWidget {

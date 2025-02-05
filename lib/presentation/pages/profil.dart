@@ -7,6 +7,7 @@ import 'package:geo_scraper_mobile/presentation/pages/deliveryAddress.dart';
 import 'package:geo_scraper_mobile/presentation/pages/editPhoneNumber.dart';
 import 'package:geo_scraper_mobile/presentation/pages/favorites.dart';
 import 'package:geo_scraper_mobile/presentation/pages/transactions.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Profile extends StatefulWidget {
@@ -219,7 +220,13 @@ class _ProfileState extends State<Profile> {
       width: double.infinity,
       child: ElevatedButton(
         style: _buttonStyle(),
-        onPressed: () => _showLogOutAlertDialog(context),
+        onPressed: () => _showAlertDialog(
+            context,
+            "x-close.svg",
+            "Akkauntni O`chirmoqchimisiz?",
+            "O`chirish tugmachasini bosish orqali siz hisobingizni tiklash imkonyatisiz butunlay o`chirib tashlaysiz.",
+            () {},
+            "O`chirish"),
         child: const Text("Hisobni o`chirish",
             style: TextStyle(
                 fontSize: 16,
@@ -234,7 +241,13 @@ class _ProfileState extends State<Profile> {
       margin: EdgeInsets.only(top: 16),
       width: double.infinity,
       child: TextButton(
-        onPressed: () {},
+        onPressed: () => _showAlertDialog(
+            context,
+            "exit.svg",
+            "Hisobdan chiqish",
+            "Siz haqiqatdan ham chiqishni xoxlaysizmi?",
+            () {},
+            "Chiqish"),
         child: const Text("Chiqish",
             style: TextStyle(
                 fontSize: 18,
@@ -384,7 +397,8 @@ class _ProfileState extends State<Profile> {
             }));
   }
 
-  void _showLogOutAlertDialog(BuildContext context) {
+  void _showAlertDialog(BuildContext context, String svg, String title,
+      String subtitle, VoidCallback onSubmit, String btnTitle) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -398,38 +412,63 @@ class _ProfileState extends State<Profile> {
             mainAxisSize: MainAxisSize.min, // Prevents unnecessary space
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                "assets/icons/exit.svg",
-                height: 60,
-                width: 60,
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(70),
+                    color: Color(0x103c486b)),
+                child: Center(
+                  child: SvgPicture.asset(
+                    "assets/icons/$svg",
+                    color: Color(0xff3c486b),
+                    height: 50,
+                    width: 50,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                "Chiqishni xohlaysizmi?",
+              Text(
+                title,
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xff3c486b),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0x903c486b),
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Bekor qilish",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Chiqish"),
-            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      "Bekor qilish",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: CustomButton(
+                    onPressed: onSubmit,
+                    text: btnTitle,
+                  ),
+                )
+              ],
+            )
           ],
         );
       },

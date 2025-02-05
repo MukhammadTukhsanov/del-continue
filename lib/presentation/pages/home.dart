@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/presentation/pages/category.dart';
 import 'package:geo_scraper_mobile/presentation/pages/main.dart';
+import 'package:geo_scraper_mobile/presentation/pages/orders.dart';
 import 'package:geo_scraper_mobile/presentation/pages/profil.dart';
 
 class Home extends StatefulWidget {
@@ -27,8 +29,8 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _bottomNavigationPages = [
     Main(),
-    Center(child: Text("Category Page", style: TextStyle(fontSize: 20))),
-    Center(child: Text("Orders Page", style: TextStyle(fontSize: 20))),
+    Category(),
+    Orders(),
     Profile(), // Add SettingsPage here
   ];
 
