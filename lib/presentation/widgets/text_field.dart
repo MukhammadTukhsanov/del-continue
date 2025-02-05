@@ -43,7 +43,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
       obscureText: widget.visibility ? _isPasswordHidden : false,
       decoration: InputDecoration(
         hintText: widget.label,
-        hintStyle: const TextStyle(color: Color(0xff989FB1)),
+        hintStyle:
+            const TextStyle(color: Color(0xff989FB1), fontSize: 20, height: 1),
         prefixIcon: widget.prefixIcon != null
             ? Icon(widget.prefixIcon, color: const Color(0xff989FB1))
             : null,
