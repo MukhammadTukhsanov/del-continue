@@ -1,4 +1,4 @@
-package com.example.geo_scraper_mobile
+package com.example.yolda_v2
 
 import io.flutter.embedding.android.FlutterActivity
 

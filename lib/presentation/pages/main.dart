@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
+import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
 import 'package:geo_scraper_mobile/presentation/pages/markets.dart';
 import 'package:geo_scraper_mobile/presentation/screens/kitchen_main_page.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/horizontalListItem.dart';
@@ -18,7 +19,10 @@ List<Map<String, dynamic>> menuItems = [
   {
     "title": "Chegirmalar",
     "imagePath": "./assets/images/persent.png",
-    "onTap": () {}
+    "onTap": (BuildContext context) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const Discounts()));
+    }
   },
   {
     "title": "Savdo",

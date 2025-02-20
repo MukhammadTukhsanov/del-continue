@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StorageService {
   static const String _addressKey = "savedAddress";
   static const String _locationKey = "user_location";
+  static const String _marketsKey = "markets_list";
 
   static Future<void> saveUserLocation(
       double latitude, double longitude) async {
@@ -49,14 +50,14 @@ class StorageService {
       String street, String locality, String country, String region) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String addressJson = jsonEncode({
+      String marketsJson = jsonEncode({
         "street": street,
         "locality": locality,
         "country": country,
         "region": region
       });
-      await prefs.setString(_addressKey, addressJson);
-      print("✅ Address saved: $addressJson");
+      await prefs.setString(_addressKey, marketsJson);
+      print("✅ Address saved: $marketsJson");
     } catch (e) {
       print("❌ Error saving address: $e");
     }
@@ -75,5 +76,29 @@ class StorageService {
       print("❌ Error retrieving address: $e");
       return {};
     }
+  }
+
+  static Future<void> saveMarketsLocally(
+      List<Map<String, dynamic>> markets) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_marketsKey, jsonEncode(markets));
+      print("✅ Markets saved to local storage");
+    } catch (e) {
+      print("❌ Error saving markets locally: $e");
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getMarketsFromLocal() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? storedMarkets = prefs.getString(_marketsKey);
+      if (storedMarkets != null) {
+        return List<Map<String, dynamic>>.from(jsonDecode(storedMarkets));
+      }
+    } catch (e) {
+      print("❌ Error fetching markets from local storage: $e");
+    }
+    return [];
   }
 }

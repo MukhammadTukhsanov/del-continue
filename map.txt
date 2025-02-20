@@ -1,0 +1,25 @@
+lib/
+│── main.dart          # Entry point of the application
+│── core/              # Core functionalities like utilities and configurations
+│   │── constants/     # Constant values like API endpoints, keys, etc.
+│   │── errors/
+│   │── providers/
+│   │── services/
+│   │── utils/         # Helper functions and utility classes
+│── data/              # Data-related operations
+│   │── models/        # Data models (e.g., User, Post)
+│   │── repositories/  # Data repositories (e.g., API and local storage handling)
+│── presentation/      # UI and state management
+│   │── pages/
+│   │── screens/       # All screens/pages of the app
+│   │── services/
+│   │── state/
+│   │── utils/
+│   │── widgets/
+│   │── firebase_options.dart
+│   │── main.dart
+│── routes/            # Application navigation
+│── services/          # External services (e.g., API, Firebase, Notifications)
+│── localization/      # Multi-language support
+│── dependencies/      # Dependency injection (e.g., using GetIt)
+│── main.dart          # Application entry point

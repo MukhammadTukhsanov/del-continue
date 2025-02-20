@@ -1,1 +1,44 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"geoscraper-ae801","appId":"1:499307464905:android:2c72edcfaabe7a748b2518","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"geoscraper-ae801","appId":"1:499307464905:ios:c165efc31e47351e8b2518","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"geoscraper-ae801","appId":"1:499307464905:ios:c165efc31e47351e8b2518","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"geoscraper-ae801","configurations":{"android":"1:499307464905:android:2c72edcfaabe7a748b2518","ios":"1:499307464905:ios:c165efc31e47351e8b2518","macos":"1:499307464905:ios:c165efc31e47351e8b2518","web":"1:499307464905:web:cb92f02af1ee53c18b2518","windows":"1:499307464905:web:58c2cc78a7d3307c8b2518"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "geoscraper-ae801",
+          "appId": "1:499307464905:android:2c72edcfaabe7a748b2518",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "geoscraper-ae801",
+          "appId": "1:499307464905:ios:c165efc31e47351e8b2518",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "geoscraper-ae801",
+          "appId": "1:499307464905:ios:c165efc31e47351e8b2518",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "geoscraper-ae801",
+          "configurations": {
+            "android": "1:499307464905:android:2c72edcfaabe7a748b2518",
+            "ios": "1:499307464905:ios:c165efc31e47351e8b2518",
+            "macos": "1:499307464905:ios:c165efc31e47351e8b2518",
+            "web": "1:499307464905:web:cb92f02af1ee53c18b2518",
+            "windows": "1:499307464905:web:58c2cc78a7d3307c8b2518"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "singleProjectMode": true
+  }
+}

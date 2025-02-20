@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
+import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/category.dart';
 import 'package:geo_scraper_mobile/presentation/pages/main.dart';
 import 'package:geo_scraper_mobile/presentation/pages/orders.dart';
@@ -33,10 +35,23 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    loadMarkets();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
+  }
+
+  void loadMarkets() async {
+    List<Map<String, dynamic>> markets =
+        await StorageService.getMarketsFromLocal();
+
+    if (markets.isNotEmpty) {
+      print("📥 Loaded markets from local storage:");
+      print(markets);
+    } else {
+      print("⚠ No markets found in local storage.");
+    }
   }
 
   void _onItemTapped(int index) => setState(() => _selectedIndex = index);

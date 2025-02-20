@@ -1,34 +1,49 @@
 {
   "project_info": {
-    "project_number": "499307464905",
-    "project_id": "geoscraper-ae801",
-    "storage_bucket": "geoscraper-ae801.firebasestorage.app"
+    "project_number": "569284477850",
+    "project_id": "yo-lda-a732c",
+    "storage_bucket": "yo-lda-a732c.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:499307464905:android:2c72edcfaabe7a748b2518",
+        "mobilesdk_app_id": "1:569284477850:android:2b49cfb2b00422a60e7023",
         "android_client_info": {
-          "package_name": "com.example.geo_scraper_mobile"
+          "package_name": "com.example.yolda_v2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "499307464905-0ks9g3isib7oa058614pmnqp0aaorqhn.apps.googleusercontent.com",
+          "client_id": "569284477850-hj4od7ov7tg17sdp2b093o4nff1m7qlh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.yolda_v2",
+            "certificate_hash": "aeb111b1cca7642d1e0af1995909b2616c7e0110"
+          }
+        },
+        {
+          "client_id": "569284477850-sjd32pdvhtv6l0hrrg8rk0eta8fvjg9c.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBSLODEh4I5cAXuDmCTx1ZRTYw_6450pw4"
+          "current_key": "AIzaSyCvNC-An2SXHYbsG_lr7RgNhQBLwhVFYP8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "499307464905-0ks9g3isib7oa058614pmnqp0aaorqhn.apps.googleusercontent.com",
+              "client_id": "569284477850-sjd32pdvhtv6l0hrrg8rk0eta8fvjg9c.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "569284477850-hnkr6a4bftdcl9ce3t70umlvs6cu54ht.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.yolda"
+              }
             }
           ]
         }

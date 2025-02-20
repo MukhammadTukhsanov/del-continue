@@ -87,4 +87,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'geoscraper-ae801.firebasestorage.app',
     measurementId: 'G-Z6TG1VSQLE',
   );
+
 }
