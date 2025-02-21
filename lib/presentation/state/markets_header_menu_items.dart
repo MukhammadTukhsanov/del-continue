@@ -3,5 +3,5 @@ List<Map<String, String>> marketsHeaderMenuItems = [
   {"title": "Supermarket"},
   {"title": "Suv"},
   {"title": "Go`sht"},
-  {"title": "Ovqatlar"},
+  // {"title": "Ovqatlar"},
 ];

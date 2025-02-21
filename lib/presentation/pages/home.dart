@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/category.dart';
 import 'package:geo_scraper_mobile/presentation/pages/main.dart';
@@ -44,7 +43,7 @@ class _HomeState extends State<Home> {
 
   void loadMarkets() async {
     List<Map<String, dynamic>> markets =
-        await StorageService.getMarketsFromLocal();
+        await StorageService.getDataFromLocal(StorageType.markets);
 
     if (markets.isNotEmpty) {
       print("📥 Loaded markets from local storage:");

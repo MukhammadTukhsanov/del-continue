@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/data/models/horizontal_list_item_model.dart';
 
 class HorizontalListItem extends StatelessWidget {
-  const HorizontalListItem({
-    super.key,
-  });
+  final ListItemModel ListItemModel;
+  const HorizontalListItem({super.key, required this.ListItemModel});
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +19,12 @@ class HorizontalListItem extends StatelessWidget {
           Container(
             height: 150,
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10)),
                 image: DecorationImage(
-                    image: NetworkImage(
-                        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/1280px-Pizza-3007395.jpg"),
+                    image: NetworkImage(ListItemModel.photo),
                     fit: BoxFit.cover)),
           ),
           Padding(
@@ -33,11 +32,11 @@ class HorizontalListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Domino`s Pizza",
+                      ListItemModel.name,
                       style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -51,7 +50,7 @@ class HorizontalListItem extends StatelessWidget {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          "4.0",
+                          ListItemModel.rating,
                           style: TextStyle(
                               color: Color(0xff000000),
                               fontWeight: FontWeight.w600,
@@ -59,7 +58,7 @@ class HorizontalListItem extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          "(+100)",
+                          "(+${ListItemModel.reviewsCount})",
                           style: TextStyle(
                               color: Color(0x703c486b),
                               fontWeight: FontWeight.w600),
@@ -69,7 +68,7 @@ class HorizontalListItem extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
@@ -79,7 +78,7 @@ class HorizontalListItem extends StatelessWidget {
                             fontWeight: FontWeight.w400),
                       ),
                       TextSpan(
-                        text: "50 000",
+                        text: ListItemModel.minOrder,
                         style: TextStyle(
                           color: Color(0x993c486b),
                           fontWeight: FontWeight.w600,
@@ -103,8 +102,8 @@ class HorizontalListItem extends StatelessWidget {
                         placeholderBuilder: (BuildContext context) =>
                             const Icon(Icons.error)),
                     const SizedBox(width: 3),
-                    const Text(
-                      "12 - 25 min",
+                    Text(
+                      "${ListItemModel.minDeliveryTime} - ${ListItemModel.maxDeliveryTime} min",
                       style: TextStyle(color: Color(0x993c486b), fontSize: 14),
                     ),
                     const SizedBox(width: 3),
@@ -120,8 +119,8 @@ class HorizontalListItem extends StatelessWidget {
                         placeholderBuilder: (BuildContext context) =>
                             const Icon(Icons.error)),
                     const SizedBox(width: 3),
-                    const Text(
-                      "Tekin",
+                    Text(
+                      ListItemModel.deliveryPrice,
                       style: TextStyle(
                           color: Color(0x703c486b),
                           fontWeight: FontWeight.w400),

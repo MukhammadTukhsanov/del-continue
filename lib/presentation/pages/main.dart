@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
+import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
 import 'package:geo_scraper_mobile/presentation/pages/markets.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_main_page.dart';
-import 'package:geo_scraper_mobile/presentation/widgets/horizontalListItem.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/horizontal_list_item.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/list_title.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/vertical_list_item.dart';
 
 class Main extends StatefulWidget {
   const Main({super.key});
@@ -170,186 +172,72 @@ class _MainState extends State<Main> {
             ),
           ),
           const Divider(thickness: 1, color: Color(0x203c486b), height: 16),
-          _title("Oldingi buyurtmalaringiz"),
+          ListTitle(title: "Oldingi buyurtmalaringiz"),
           _buildRecentlyOrderedList(),
           const SizedBox(height: 12),
-          _title("Oshxonalar"),
+          ListTitle(title: "Oshxonalar"),
           _buildKitchenList(),
         ],
       ),
     );
   }
 
-  Widget _title(title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-      child: GestureDetector(
-        onTap: () {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                  fontSize: 17,
-                  color: Color(0xff3c486b),
-                  fontWeight: FontWeight.w600),
-            ),
-            Image.asset(
-              "assets/icons/arrow.png",
-              scale: 3,
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildRecentlyOrderedList() {
-    return SizedBox(
-      height: 243,
-      child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          itemCount: 5,
-          separatorBuilder: (_, __) => const SizedBox(width: 10),
-          itemBuilder: (_, __) => const HorizontalListItem()
-          // RecentlyOrderedItem(),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: StorageService.getDataFromLocal(StorageType.markets),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("Нет данных"));
+        }
+        final List<ListItemModel> displayedMarkets = snapshot.data!
+            .take(3)
+            .map((map) => ListItemModel.fromMap(map))
+            .toList();
+
+        return SizedBox(
+          height: 243,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: displayedMarkets.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              return HorizontalListItem(ListItemModel: displayedMarkets[index]);
+            },
           ),
+        );
+      },
     );
   }
 
   Widget _buildKitchenList() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      itemCount: 3,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, __) => const ListItem(),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: StorageService.getDataFromLocal(StorageType.kitchens),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text("Нет данных"));
+        }
+
+        final List<ListItemModel> displayedMarkets =
+            snapshot.data!.map((map) => ListItemModel.fromMap(map)).toList();
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: displayedMarkets.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, index) {
+            return VerticalListItem(listItemModel: displayedMarkets[index]);
+          },
+        );
+      },
     );
-  }
-}
-
-class ListItem extends StatelessWidget {
-  const ListItem({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const KitchenMainPage())),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          children: [
-            _buildImage(),
-            const SizedBox(width: 10),
-            _buildDetails(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImage() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: const DecorationImage(
-          image: NetworkImage(
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/1280px-Pizza-3007395.jpg"),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetails() {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Domino`s Pizza",
-              style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black)),
-          const SizedBox(height: 6),
-          _buildPriceText(),
-          const SizedBox(height: 6),
-          _buildDeliveryInfo(),
-          const SizedBox(height: 6),
-          _buildPromoBadge(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPriceText() {
-    return const Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-              text: "kamida - ",
-              style: TextStyle(
-                  color: Color(0x993c486b), fontWeight: FontWeight.w400)),
-          TextSpan(
-              text: "50 000",
-              style: TextStyle(
-                  color: Color(0x993c486b), fontWeight: FontWeight.w600)),
-          TextSpan(
-              text: " So`m",
-              style: TextStyle(
-                  color: Color(0x993c486b), fontWeight: FontWeight.w400)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeliveryInfo() {
-    return Row(
-      children: [
-        _buildIcon("assets/icons/clock.svg"),
-        const SizedBox(width: 3),
-        const Text("12 - 25 min",
-            style: TextStyle(color: Color(0x993c486b), fontSize: 14)),
-        _buildIcon("assets/icons/dot.svg"),
-        _buildIcon("assets/icons/delivery.svg"),
-        const SizedBox(width: 3),
-        const Text("Tekin",
-            style: TextStyle(
-                color: Color(0x703c486b), fontWeight: FontWeight.w400)),
-      ],
-    );
-  }
-
-  Widget _buildPromoBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0x803c486b)),
-        borderRadius: BorderRadius.circular(20),
-        color: const Color(0x103c486b),
-      ),
-      child: const Text(
-        "Tekin yetkazib berish 70 000 dan yuqori savdoda.",
-        style: TextStyle(
-            fontSize: 13,
-            color: Color(0xff3c486b),
-            fontWeight: FontWeight.w600),
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  Widget _buildIcon(String path) {
-    return SvgPicture.asset(path,
-        width: 14,
-        height: 14,
-        colorFilter:
-            const ColorFilter.mode(Color(0x993c486b), BlendMode.srcIn));
   }
 }

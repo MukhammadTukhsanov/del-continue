@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
-import 'package:geo_scraper_mobile/presentation/pages/market.dart';
+import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/state/markets_header_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/header_slider_menu.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/horizontal_list_item.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/list_title.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/vertical_list_item.dart';
 
 class Markets extends StatefulWidget {
   const Markets({super.key});
@@ -26,8 +28,26 @@ class _MarketsState extends State<Markets> {
   @override
   void initState() {
     super.initState();
+    _getMarkets();
     _getAddress();
   }
+
+  List<ListItemModel> _markets = [];
+  final List<ListItemModel> _filteredMarkets = [];
+  final String _activeCategory = "all";
+
+  Future<void> _getMarkets() async {
+    final data = await StorageService.getDataFromLocal(StorageType.markets);
+
+    setState(() {
+      _markets = data.map((map) {
+        print("map: $map");
+        return ListItemModel.fromMap(map);
+      }).toList();
+    });
+  }
+
+  _handleFilterChange() {}
 
   Future<void> _getAddress() async {
     Map<String, String>? address = await StorageService.getSavedAddress();
@@ -37,12 +57,6 @@ class _MarketsState extends State<Markets> {
       locality = address['locality'] ?? "";
       country = address['country'] ?? "";
       region = address['region'] ?? "";
-    });
-  }
-
-  void _handleItemSelected(int index) {
-    setState(() {
-      _activeIndex = index;
     });
   }
 
@@ -82,17 +96,17 @@ class _MarketsState extends State<Markets> {
           )),
       body: Column(
         children: [
-          const SizedBox(height: 8),
-          Title(title: "Mashhur do`konlar"),
+          const SizedBox(height: 16),
+          ListTitle(title: "Mashhur do`konlar", icon: false),
           SizedBox(
             height: 243,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: 5,
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
+              itemCount: _markets.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
-                return const ResentlyOrderedItem();
+                return HorizontalListItem(ListItemModel: _markets[index]);
               },
             ),
           ),
@@ -102,182 +116,26 @@ class _MarketsState extends State<Markets> {
           HeaderSliderMenu(
             data: marketsHeaderMenuItems,
             activeIndex: _activeIndex,
-            onItemSelected: _handleItemSelected,
+            onItemSelected: (ind) {
+              print(ind);
+              setState(() {
+                _activeIndex = ind;
+              });
+            },
             scrollController: _scrollController,
           ),
           const SizedBox(height: 10),
-          Title(title: marketsHeaderMenuItems[_activeIndex]["title"]!)
+          ListView.separated(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            itemCount: _filteredMarkets.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              return VerticalListItem(listItemModel: _filteredMarkets[index]);
+            },
+          )
         ],
-      ),
-    );
-  }
-}
-
-class Title extends StatelessWidget {
-  String title;
-  Title({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 8.0),
-      child: GestureDetector(
-        onTap: () {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                  fontSize: 17,
-                  color: Color(0xff3c486b),
-                  fontWeight: FontWeight.w600),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ResentlyOrderedItem extends StatelessWidget {
-  const ResentlyOrderedItem({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Market()));
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width * .75,
-        height: 243,
-        decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xffe2e3e9)),
-            borderRadius: BorderRadius.circular(10)),
-        child: Column(
-          children: [
-            Container(
-              height: 150,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10)),
-                  image: DecorationImage(
-                      image: NetworkImage(
-                          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/1280px-Pizza-3007395.jpg"),
-                      fit: BoxFit.cover)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Domino`s Pizza",
-                        style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff000000)),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Color(0xfff8b84e),
-                          ),
-                          SizedBox(width: 5),
-                          Text(
-                            "4.0",
-                            style: TextStyle(
-                                color: Color(0xff000000),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 17),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            "(+100)",
-                            style: TextStyle(
-                                color: Color(0x703c486b),
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  const Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "kamida - ",
-                          style: TextStyle(
-                              color: Color(0x993c486b),
-                              fontWeight: FontWeight.w400),
-                        ),
-                        TextSpan(
-                          text: "50 000",
-                          style: TextStyle(
-                            color: Color(0x993c486b),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextSpan(
-                          text: " So`m",
-                          style: TextStyle(
-                              color: Color(0x993c486b),
-                              fontWeight: FontWeight.w400),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      SvgPicture.asset("assets/icons/clock.svg",
-                          colorFilter: const ColorFilter.mode(
-                              Color(0x993c486b), BlendMode.srcIn),
-                          placeholderBuilder: (BuildContext context) =>
-                              const Icon(Icons.error)),
-                      const SizedBox(width: 3),
-                      const Text(
-                        "12 - 25 min",
-                        style:
-                            TextStyle(color: Color(0x993c486b), fontSize: 14),
-                      ),
-                      const SizedBox(width: 3),
-                      SvgPicture.asset("assets/icons/dot.svg",
-                          colorFilter: const ColorFilter.mode(
-                              Color(0x993c486b), BlendMode.srcIn),
-                          placeholderBuilder: (BuildContext context) =>
-                              const Icon(Icons.error)),
-                      const SizedBox(width: 3),
-                      SvgPicture.asset("assets/icons/delivery.svg",
-                          colorFilter: const ColorFilter.mode(
-                              Color(0x993c486b), BlendMode.srcIn),
-                          placeholderBuilder: (BuildContext context) =>
-                              const Icon(Icons.error)),
-                      const SizedBox(width: 3),
-                      const Text(
-                        "Tekin",
-                        style: TextStyle(
-                            color: Color(0x703c486b),
-                            fontWeight: FontWeight.w400),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
       ),
     );
   }

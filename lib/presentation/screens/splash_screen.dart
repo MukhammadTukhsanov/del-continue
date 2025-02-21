@@ -17,13 +17,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
+    fetchData();
     Future.microtask(() => initializeAddress());
   }
 
-  void fetchMarkets() async {
+  void fetchData() async {
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
     await databaseService.fetchMarkets();
+    await databaseService.fetchKitchens();
   }
 
   Future<void> initializeAddress() async {

@@ -2,10 +2,15 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum StorageType { markets, kitchens }
+
 class StorageService {
   static const String _addressKey = "savedAddress";
   static const String _locationKey = "user_location";
-  static const String _marketsKey = "markets_list";
+  static const Map<StorageType, String> _storageKeys = {
+    StorageType.markets: "markets_list",
+    StorageType.kitchens: "kitchens_list",
+  };
 
   static Future<void> saveUserLocation(
       double latitude, double longitude) async {
@@ -78,26 +83,28 @@ class StorageService {
     }
   }
 
-  static Future<void> saveMarketsLocally(
-      List<Map<String, dynamic>> markets) async {
+  static Future<void> saveDataLocally(
+      List<Map<String, dynamic>> data, StorageType type) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_marketsKey, jsonEncode(markets));
-      print("✅ Markets saved to local storage");
+      final String key = _storageKeys[type]!;
+      await prefs.setString(key, jsonEncode(data));
+      print("✅ ${type.name} saved to local storage");
     } catch (e) {
-      print("❌ Error saving markets locally: $e");
+      print("❌ Error saving ${type.name} locally: $e");
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getMarketsFromLocal() async {
+  static Future<List<Map<String, dynamic>>> getDataFromLocal(
+      StorageType type) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? storedMarkets = prefs.getString(_marketsKey);
-      if (storedMarkets != null) {
-        return List<Map<String, dynamic>>.from(jsonDecode(storedMarkets));
+      String? storedData = prefs.getString(_storageKeys[type]!);
+      if (storedData != null) {
+        return List<Map<String, dynamic>>.from(jsonDecode(storedData));
       }
     } catch (e) {
-      print("❌ Error fetching markets from local storage: $e");
+      print("❌ Error fetching ${type.name} from local storage: $e");
     }
     return [];
   }
