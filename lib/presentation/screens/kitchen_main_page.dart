@@ -72,7 +72,7 @@ class _KitchenMainPageState extends State<KitchenMainPage> {
         body: SafeArea(
           child: Column(
             children: [
-              const MainPagesHeader(),
+              // const MainPagesHeader(),
               const Divider(
                 height: 1,
                 color: Color(0x203c486b),

@@ -1,68 +1,121 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
+import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
+import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
+import 'package:geo_scraper_mobile/presentation/pages/market_products.dart';
 import 'package:geo_scraper_mobile/presentation/state/market_main_page_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/main_pages_header.dart';
 
 class MarketMainPage extends StatefulWidget {
-  const MarketMainPage({super.key});
+  final ListItemModel listItemModel;
+  const MarketMainPage({super.key, required this.listItemModel});
 
   @override
-  _MarketMainPageState createState() => _MarketMainPageState();
+  State<MarketMainPage> createState() => _MarketMainPageState();
 }
 
 class _MarketMainPageState extends State<MarketMainPage> {
+  List<MarketProductItemModel> products = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchSingleMarket(widget.listItemModel.id);
+  }
+
+  Future<void> fetchSingleMarket(String id) async {
+    FirebaseDatabaseService databaseService = FirebaseDatabaseService();
+    List<Map<String, dynamic>>? productsData =
+        await databaseService.fetchSingleMarket(id);
+
+    if (productsData != null) {
+      List<MarketProductItemModel> convertedProducts = productsData.map((item) {
+        // Изменил products -> productsData
+        return MarketProductItemModel.fromMap(item);
+      }).toList();
+
+      setState(() {
+        products = convertedProducts;
+      });
+    } else {
+      print("No products found");
+    }
+
+    print("products: $products");
+  }
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark));
     return Scaffold(
-      body: Column(
-        children: [
-          const MainPagesHeader(),
-          Expanded(
-              child: GridView.builder(
-            padding: const EdgeInsets.all(10),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, mainAxisSpacing: 10, crossAxisSpacing: 5),
-            itemCount: menuItems.length,
-            itemBuilder: (BuildContext context, int index) {
-              return GestureDetector(
-                onTap: () {
-                  print(menuItems[index]["text"]);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text("Savdo"),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(
+              color: const Color(0xffd8dae1),
+              height: 1,
+            ),
+          ),
+        ),
+        body: SafeArea(
+            child: Column(
+          children: [
+            MainPagesHeader(
+              listItemModel: widget.listItemModel,
+            ),
+            const Divider(
+              height: 1,
+              color: Color(0xffd8dae1),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: GridView.count(
+                  crossAxisCount: 4,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: menuItems.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    final item = entry.value;
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MarketProducts(
+                                  activeIndex: index,
+                                  id: widget.listItemModel.id,
+                                  products: products))),
+                      key: ValueKey("${item["imageSrc"]} + $index"),
                       child: Column(
-                    children: [
-                      SizedBox(
-                        height: 55,
-                        child: Image.asset(
-                          menuItems[index]["image"]!,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            menuItems[index]["text"]!,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color: Color(0xff434f70),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700),
+                        children: [
+                          Container(
+                            width: 75,
+                            height: 55,
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: AssetImage(item["image"]!))),
                           ),
-                        ),
-                      )
-                    ],
-                  )),
-                ),
-              );
-            },
-          ))
-        ],
-      ),
-    );
+                          SizedBox(
+                            width: 75,
+                            height: 47,
+                            child: Center(
+                              child: Text(
+                                item["title"]!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 12),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }).toList()),
+            )
+          ],
+        )));
   }
 }

@@ -1,0 +1,15 @@
+List ProductsTyps = [
+  "moreSales",
+  "vegetables",
+  "drinks",
+  "meals",
+  "milk_breakfast",
+  "main_foods",
+  "bread",
+  "cleaning",
+  "ice_cream",
+  "tea_cofe",
+  "personal_hygiene",
+  "disposable_products",
+  "others",
+];

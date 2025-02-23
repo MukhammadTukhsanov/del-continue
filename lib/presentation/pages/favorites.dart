@@ -39,8 +39,9 @@ class _FavoritesState extends State<Favorites> {
             children: menuItems.asMap().entries.map((entry) {
               int index = entry.key;
               final item = entry.value;
-              return MarketProductItem(
-                  onAdd: () {}, onRemove: () {}, count: menuItems.length);
+              return SizedBox();
+              // MarketProductItem(
+              //     onAdd: () {}, onRemove: () {}, count: menuItems.length);
             }).toList(),
           ),
         )));

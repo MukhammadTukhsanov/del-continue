@@ -1,14 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class HeaderSliderMenu extends StatefulWidget {
-  final ScrollController? scrollController;
   final List<Map<String, dynamic>> data;
   final int activeIndex;
   final Function(int) onItemSelected;
 
   const HeaderSliderMenu({
     super.key,
-    this.scrollController,
     required this.data,
     required this.activeIndex,
     required this.onItemSelected,
@@ -19,57 +18,129 @@ class HeaderSliderMenu extends StatefulWidget {
 }
 
 class _HeaderSliderMenuState extends State<HeaderSliderMenu> {
-  late ScrollController _controller;
+  late int _selectedChip;
+  late final ScrollController _scrollController;
+  final List<GlobalKey> _chipKeys = [];
 
   @override
   void initState() {
     super.initState();
-    _controller = widget.scrollController ?? ScrollController();
+    _selectedChip =
+        (widget.activeIndex >= 0 && widget.activeIndex < widget.data.length)
+            ? widget.activeIndex
+            : 0;
+
+    _scrollController = ScrollController();
+
+    if (widget.data.isNotEmpty) {
+      _chipKeys
+          .addAll(List.generate(widget.data.length, (index) => GlobalKey()));
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToActiveItem();
+      if (widget.data.isNotEmpty) {
+        _scrollToSelectedChip();
+      }
     });
   }
 
   @override
+  void didUpdateWidget(covariant HeaderSliderMenu oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.data.length != widget.data.length) {
+      _chipKeys.clear();
+      _chipKeys
+          .addAll(List.generate(widget.data.length, (index) => GlobalKey()));
+    }
+  }
+
+  void _scrollToSelectedChip() {
+    if (_chipKeys.isNotEmpty &&
+        _selectedChip >= 0 &&
+        _selectedChip < _chipKeys.length &&
+        _chipKeys[_selectedChip].currentContext != null) {
+      Scrollable.ensureVisible(
+        _chipKeys[_selectedChip].currentContext!,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _onChipSelected(int index) {
+    setState(() {
+      _selectedChip = index;
+    });
+    widget.onItemSelected(index);
+    _scrollToSelectedChip();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
-        controller: _controller,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: widget.data.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 10),
-        itemBuilder: (context, index) {
-          bool isActive = index == widget.activeIndex;
-          return GestureDetector(
-            onTap: () => widget.onItemSelected(index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              decoration: BoxDecoration(
-                border: Border.all(width: 1, color: const Color(0x303c486b)),
-                borderRadius: BorderRadius.circular(24),
-                color: isActive ? const Color(0xff3c486b) : Colors.transparent,
-              ),
-              child: Text(
-                widget.data[index]["title"]!,
-                style: TextStyle(
-                  color: isActive ? Colors.white : Colors.black,
-                ),
-              ),
-            ),
-          );
-        },
+    if (widget.data.isEmpty) {
+      return const SizedBox();
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      controller: _scrollController,
+      child: Row(
+        children: <Widget>[
+          const SizedBox(width: 8),
+          ...widget.data.asMap().entries.map((entry) {
+            int index = entry.key;
+            var item = entry.value;
+
+            return ChoiceChipWidget(
+              key: _chipKeys.isNotEmpty ? _chipKeys[index] : GlobalKey(),
+              label: '${item['title']}',
+              isSelected: _selectedChip == index,
+              onSelected: () => _onChipSelected(index),
+            );
+          }),
+        ],
       ),
     );
   }
+}
 
-  void _scrollToActiveItem() {
-    double offset = widget.activeIndex * (100.0 + 10.0); // Approximate width
-    _controller.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+class ChoiceChipWidget extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onSelected;
+
+  const ChoiceChipWidget({
+    super.key,
+    required this.label,
+    required this.isSelected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: ChoiceChip(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+        showCheckmark: false,
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (bool selected) {
+          onSelected();
+        },
+        selectedColor: const Color(0xff3C486B),
+        backgroundColor: Colors.white,
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : const Color(0xff3c486b),
+          fontSize: 14,
+        ),
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: const Color(0xff3c486b).withOpacity(0.3),
+          ),
+        ),
+      ),
     );
   }
 }

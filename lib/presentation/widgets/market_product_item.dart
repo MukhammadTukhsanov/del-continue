@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 
 class MarketProductItem extends StatefulWidget {
   final VoidCallback onAdd;
   final VoidCallback onRemove;
   final int count;
+  final MarketProductItemModel marketProductItemModel;
 
-  const MarketProductItem({
-    super.key,
-    required this.onAdd,
-    required this.onRemove,
-    required this.count,
-  });
+  const MarketProductItem(
+      {super.key,
+      required this.onAdd,
+      required this.onRemove,
+      required this.count,
+      required this.marketProductItemModel});
 
   @override
   _MarketProductItemState createState() => _MarketProductItemState();
@@ -31,7 +33,9 @@ class _MarketProductItemState extends State<MarketProductItem> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.network(
-                    "https://media.istockphoto.com/id/182463420/photo/tangerine-duo-with-leafs.jpg?s=612x612&w=0&k=20&c=d3JZRAqgqZ5RWyN4ryFteCnmFNbeD9e3TNJkS2IC0vU=",
+                    width: MediaQuery.sizeOf(context).width / 2 - 10,
+                    height: MediaQuery.sizeOf(context).width / 2 - 10,
+                    widget.marketProductItemModel.photo,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -103,19 +107,24 @@ class _MarketProductItemState extends State<MarketProductItem> {
                         )))
               ],
             )),
-        const SizedBox(height: 2),
-        const Row(
+        const SizedBox(height: 4),
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          spacing: 20,
           children: [
-            Text("Apelsin",
-                textAlign: TextAlign.start,
+            Expanded(
+              child: Text(widget.marketProductItemModel.name,
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xff3c486b))),
+            ),
+            Text(
+                "${widget.marketProductItemModel.measurementValue}${widget.marketProductItemModel.unitOfMeasure}",
                 style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xff3c486b))),
-            Text("1 kg",
-                style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Color(0xff3c486b))),
           ],
@@ -123,8 +132,8 @@ class _MarketProductItemState extends State<MarketProductItem> {
         const SizedBox(
           height: 2,
         ),
-        const Text(
-          "Apelsin barra qirmizi suvlik ta’mi alo darajada sasdasddsadasd",
+        Text(
+          widget.marketProductItemModel.description,
           style: TextStyle(
               color: Color.fromARGB(153, 60, 72, 107),
               fontSize: 14,
@@ -133,8 +142,8 @@ class _MarketProductItemState extends State<MarketProductItem> {
           maxLines: 1,
         ),
         const SizedBox(height: 2),
-        const Text(
-          "10 000 so'm",
+        Text(
+          widget.marketProductItemModel.price,
           style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,

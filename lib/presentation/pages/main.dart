@@ -205,7 +205,7 @@ class _MainState extends State<Main> {
             itemCount: displayedMarkets.length,
             separatorBuilder: (_, __) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
-              return HorizontalListItem(ListItemModel: displayedMarkets[index]);
+              return HorizontalListItem(listItemModel: displayedMarkets[index]);
             },
           ),
         );

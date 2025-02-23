@@ -30,7 +30,7 @@ class FirebaseDatabaseService {
           print('🔥 Firebase Storage Error for $imagePath: ${e.message}');
           data['photo'] = defaultImageUrl;
         }
-        data['kitchenName'] = doc.id;
+        data['id'] = doc.id;
         markets.add(data);
       }
       StorageService.saveDataLocally(markets, StorageType.markets);
@@ -65,7 +65,7 @@ class FirebaseDatabaseService {
           print('🔥 Firebase Storage Error for $imagePath: ${e.message}');
           data['photo'] = defaultImageUrl;
         }
-        data['kitchenName'] = doc.id;
+        data['id'] = doc.id;
         kitchens.add(data);
       }
       StorageService.saveDataLocally(kitchens, StorageType.kitchens);
@@ -74,5 +74,26 @@ class FirebaseDatabaseService {
       print("Error fetching markets: $e");
       return null;
     }
+  }
+
+  Future<List<Map<String, dynamic>>?> fetchSingleMarket(String id) async {
+    List<Map<String, dynamic>> markets = [];
+    try {
+      CollectionReference singleMarketRef =
+          _firestore.collection("markets").doc(id).collection("products");
+      QuerySnapshot singleMarketSnapshot = await singleMarketRef.get();
+      for (var doc in singleMarketSnapshot.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        String photo = await _fStorage.ref(data["photo"]).getDownloadURL();
+        data["photo"] = photo;
+        markets.add(data);
+        print("data: $data");
+      }
+      print("markets: $markets");
+      return markets;
+    } catch (e) {
+      print("Error fetching single market: $e");
+    }
+    return null;
   }
 }

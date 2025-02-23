@@ -1,29 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 
-class MainPagesHeader extends StatefulWidget {
-  // String imageLink;
-  // String name;
-  // String deliveryPrice;
-  // String minDeliveryTime;
-  // String maxDeliveryTime;
-  // String afterFreeDelivery;
+class MainPagesHeader extends StatelessWidget {
+  final ListItemModel listItemModel;
+  const MainPagesHeader({super.key, required this.listItemModel});
 
-  const MainPagesHeader({
-    super.key,
-    // required this.imageLink,
-    // required this.name,
-    // required this.deliveryPrice,
-    // required this.minDeliveryTime,
-    // required this.maxDeliveryTime,
-    // required this.afterFreeDelivery
-  });
-
-  @override
-  _MainPagesHeaderState createState() => _MainPagesHeaderState();
-}
-
-class _MainPagesHeaderState extends State<MainPagesHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,11 +15,10 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
           Container(
             width: 120,
             height: 120,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(10)),
               image: DecorationImage(
-                image: NetworkImage(
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/1280px-Pizza-3007395.jpg"),
+                image: NetworkImage(listItemModel.photo),
                 fit: BoxFit.cover,
               ),
             ),
@@ -51,8 +32,8 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Domino`s Pizza",
+                    Text(
+                      listItemModel.name,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -60,7 +41,7 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text.rich(
+                    Text.rich(
                       TextSpan(
                         children: [
                           TextSpan(
@@ -71,7 +52,7 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
                             ),
                           ),
                           TextSpan(
-                            text: "50 000",
+                            text: listItemModel.minOrder,
                             style: TextStyle(
                               color: Color(0x993c486b),
                               fontWeight: FontWeight.w600,
@@ -102,8 +83,8 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
                               const Icon(Icons.error),
                         ),
                         const SizedBox(width: 3),
-                        const Text(
-                          "12 - 25 min",
+                        Text(
+                          "${listItemModel.minDeliveryTime} - ${listItemModel.maxDeliveryTime} min",
                           style: TextStyle(
                             color: Color(0x993c486b),
                             fontSize: 14,
@@ -134,8 +115,8 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
                               const Icon(Icons.error),
                         ),
                         const SizedBox(width: 3),
-                        const Text(
-                          "Tekin",
+                        Text(
+                          listItemModel.deliveryPrice,
                           style: TextStyle(
                             color: Color(0x703c486b),
                             fontWeight: FontWeight.w400,
@@ -159,9 +140,9 @@ class _MainPagesHeaderState extends State<MainPagesHeader> {
                             scale: 12,
                           ),
                           const SizedBox(width: 6),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              "Tekin yetkazib berish 70 000 dan yuqori savdoda.",
+                              "Tekin yetkazib berish ${listItemModel.deliveryPriceAfterFree} dan yuqori savdoda.",
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xff3c486b),

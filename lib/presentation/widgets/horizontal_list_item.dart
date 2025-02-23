@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geo_scraper_mobile/data/models/horizontal_list_item_model.dart';
+import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 
 class HorizontalListItem extends StatelessWidget {
-  final ListItemModel ListItemModel;
-  const HorizontalListItem({super.key, required this.ListItemModel});
+  final ListItemModel listItemModel;
+  const HorizontalListItem({super.key, required this.listItemModel});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class HorizontalListItem extends StatelessWidget {
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10)),
                 image: DecorationImage(
-                    image: NetworkImage(ListItemModel.photo),
+                    image: NetworkImage(listItemModel.photo),
                     fit: BoxFit.cover)),
           ),
           Padding(
@@ -36,7 +36,7 @@ class HorizontalListItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      ListItemModel.name,
+                      listItemModel.name,
                       style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -50,7 +50,7 @@ class HorizontalListItem extends StatelessWidget {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          ListItemModel.rating,
+                          listItemModel.rating,
                           style: TextStyle(
                               color: Color(0xff000000),
                               fontWeight: FontWeight.w600,
@@ -58,7 +58,7 @@ class HorizontalListItem extends StatelessWidget {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          "(+${ListItemModel.reviewsCount})",
+                          "(+${listItemModel.reviewsCount})",
                           style: TextStyle(
                               color: Color(0x703c486b),
                               fontWeight: FontWeight.w600),
@@ -78,7 +78,7 @@ class HorizontalListItem extends StatelessWidget {
                             fontWeight: FontWeight.w400),
                       ),
                       TextSpan(
-                        text: ListItemModel.minOrder,
+                        text: listItemModel.minOrder,
                         style: TextStyle(
                           color: Color(0x993c486b),
                           fontWeight: FontWeight.w600,
@@ -103,7 +103,7 @@ class HorizontalListItem extends StatelessWidget {
                             const Icon(Icons.error)),
                     const SizedBox(width: 3),
                     Text(
-                      "${ListItemModel.minDeliveryTime} - ${ListItemModel.maxDeliveryTime} min",
+                      "${listItemModel.minDeliveryTime} - ${listItemModel.maxDeliveryTime} min",
                       style: TextStyle(color: Color(0x993c486b), fontSize: 14),
                     ),
                     const SizedBox(width: 3),
@@ -120,7 +120,7 @@ class HorizontalListItem extends StatelessWidget {
                             const Icon(Icons.error)),
                     const SizedBox(width: 3),
                     Text(
-                      ListItemModel.deliveryPrice,
+                      listItemModel.deliveryPrice,
                       style: TextStyle(
                           color: Color(0x703c486b),
                           fontWeight: FontWeight.w400),

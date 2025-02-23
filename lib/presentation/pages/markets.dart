@@ -33,8 +33,7 @@ class _MarketsState extends State<Markets> {
   }
 
   List<ListItemModel> _markets = [];
-  final List<ListItemModel> _filteredMarkets = [];
-  final String _activeCategory = "all";
+  List<ListItemModel> _filteredMarkets = [];
 
   Future<void> _getMarkets() async {
     final data = await StorageService.getDataFromLocal(StorageType.markets);
@@ -44,10 +43,22 @@ class _MarketsState extends State<Markets> {
         print("map: $map");
         return ListItemModel.fromMap(map);
       }).toList();
+      _filteredMarkets = _markets;
     });
   }
 
-  _handleFilterChange() {}
+  _handleFilterChange(int id) {
+    if (_activeIndex == id) return;
+
+    setState(() {
+      _activeIndex = id;
+      _filteredMarkets = marketsHeaderMenuItems[id]["id"] == "all"
+          ? _markets
+          : _markets
+              .where((map) => map.type == marketsHeaderMenuItems[id]["id"])
+              .toList();
+    });
+  }
 
   Future<void> _getAddress() async {
     Map<String, String>? address = await StorageService.getSavedAddress();
@@ -95,6 +106,8 @@ class _MarketsState extends State<Markets> {
             ],
           )),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
           ListTitle(title: "Mashhur do`konlar", icon: false),
@@ -106,7 +119,7 @@ class _MarketsState extends State<Markets> {
               itemCount: _markets.length,
               separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
-                return HorizontalListItem(ListItemModel: _markets[index]);
+                return HorizontalListItem(listItemModel: _markets[index]);
               },
             ),
           ),
@@ -116,18 +129,12 @@ class _MarketsState extends State<Markets> {
           HeaderSliderMenu(
             data: marketsHeaderMenuItems,
             activeIndex: _activeIndex,
-            onItemSelected: (ind) {
-              print(ind);
-              setState(() {
-                _activeIndex = ind;
-              });
-            },
-            scrollController: _scrollController,
+            onItemSelected: _handleFilterChange,
           ),
           const SizedBox(height: 10),
           ListView.separated(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             scrollDirection: Axis.vertical,
             itemCount: _filteredMarkets.length,
             separatorBuilder: (_, __) => const SizedBox(height: 10),

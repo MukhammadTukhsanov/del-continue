@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_main_page.dart';
+import 'package:geo_scraper_mobile/presentation/screens/market_main_page.dart';
 
 class VerticalListItem extends StatelessWidget {
   final ListItemModel listItemModel;
@@ -11,7 +11,11 @@ class VerticalListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const KitchenMainPage())),
+          context,
+          MaterialPageRoute(
+              builder: (_) => MarketMainPage(
+                    listItemModel: listItemModel,
+                  ))),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(

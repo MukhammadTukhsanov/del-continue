@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/basket.dart';
 import 'package:geo_scraper_mobile/presentation/state/market_main_page_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/header_slider_menu.dart';
@@ -6,18 +7,26 @@ import 'package:geo_scraper_mobile/presentation/widgets/market_product_item.dart
 
 class MarketProducts extends StatefulWidget {
   int activeIndex = 0;
-  MarketProducts({super.key, required this.activeIndex});
+  String id;
+  List<MarketProductItemModel> products;
+
+  MarketProducts(
+      {super.key,
+      required this.activeIndex,
+      required this.id,
+      required this.products});
 
   @override
   _MarketProductsState createState() => _MarketProductsState();
 }
 
 class _MarketProductsState extends State<MarketProducts> {
-  late ScrollController controller;
+  late ScrollController _headerFilterScrol;
 
   @override
   void initState() {
     super.initState();
+    _headerFilterScrol = ScrollController();
   }
 
   List<int> productCount = List.generate(5, (index) => 0);
@@ -67,13 +76,14 @@ class _MarketProductsState extends State<MarketProducts> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 12,
-                      childAspectRatio: .74),
-                  itemCount: 5,
+                      childAspectRatio: .67),
+                  itemCount: widget.products.length,
                   itemBuilder: ((context, index) {
                     return MarketProductItem(
-                      count: productCount[index],
+                      count: widget.products.length,
                       onAdd: () => addProductCount(index),
                       onRemove: () => removeProductCount(index),
+                      marketProductItemModel: widget.products[index],
                     );
                   }),
                 ),

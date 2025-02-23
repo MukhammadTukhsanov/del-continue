@@ -9,6 +9,7 @@ class ListItemModel {
   final String deliveryPrice;
   final String deliveryPriceAfterFree;
   final String type;
+  final String id;
 
   ListItemModel(
       {required this.name,
@@ -20,7 +21,8 @@ class ListItemModel {
       required this.maxDeliveryTime,
       required this.deliveryPrice,
       required this.deliveryPriceAfterFree,
-      required this.type});
+      required this.type,
+      required this.id});
 
   factory ListItemModel.fromMap(Map<String, dynamic> map) {
     return ListItemModel(
@@ -33,6 +35,7 @@ class ListItemModel {
         maxDeliveryTime: map['maxDeliveryTime'],
         deliveryPrice: map['deliveryPrice'],
         deliveryPriceAfterFree: map['deliveryPriceAfterFree'],
-        type: map['type'] ?? '');
+        type: map['type'] ?? '',
+        id: map['id']);
   }
 }
