@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 
 class MarketProductItem extends StatefulWidget {
+  final MarketProductItemModel marketProductItemModel;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
   final int count;
-  final MarketProductItemModel marketProductItemModel;
 
   const MarketProductItem(
       {super.key,
+      required this.marketProductItemModel,
       required this.onAdd,
       required this.onRemove,
-      required this.count,
-      required this.marketProductItemModel});
+      required this.count});
 
   @override
   _MarketProductItemState createState() => _MarketProductItemState();
@@ -26,7 +26,7 @@ class _MarketProductItemState extends State<MarketProductItem> {
       children: [
         Container(
             decoration: BoxDecoration(
-                border: Border.all(width: 1, color: const Color(0xff3c486b33)),
+                border: Border.all(width: 1, color: const Color(0x333c486b)),
                 borderRadius: BorderRadius.circular(10)),
             child: Stack(
               children: [

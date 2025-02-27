@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/market_products.dart';
@@ -20,28 +19,6 @@ class _MarketMainPageState extends State<MarketMainPage> {
   @override
   void initState() {
     super.initState();
-    fetchSingleMarket(widget.listItemModel.id);
-  }
-
-  Future<void> fetchSingleMarket(String id) async {
-    FirebaseDatabaseService databaseService = FirebaseDatabaseService();
-    List<Map<String, dynamic>>? productsData =
-        await databaseService.fetchSingleMarket(id);
-
-    if (productsData != null) {
-      List<MarketProductItemModel> convertedProducts = productsData.map((item) {
-        // Изменил products -> productsData
-        return MarketProductItemModel.fromMap(item);
-      }).toList();
-
-      setState(() {
-        products = convertedProducts;
-      });
-    } else {
-      print("No products found");
-    }
-
-    print("products: $products");
   }
 
   @override
@@ -87,7 +64,8 @@ class _MarketMainPageState extends State<MarketMainPage> {
                               builder: (context) => MarketProducts(
                                   activeIndex: index,
                                   id: widget.listItemModel.id,
-                                  products: products))),
+                                  afterFree: widget
+                                      .listItemModel.deliveryPriceAfterFree))),
                       key: ValueKey("${item["imageSrc"]} + $index"),
                       child: Column(
                         children: [

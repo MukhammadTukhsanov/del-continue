@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/order_payment.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
 
 class Basket extends StatefulWidget {
-  final List<dynamic> basketData;
-  const Basket({super.key, required this.basketData});
+  final Map<String, int> basketProducts;
+  final int totalPrice;
+  final List data;
+  const Basket(
+      {super.key,
+      required this.basketProducts,
+      required this.totalPrice,
+      required this.data});
 
   @override
   State<Basket> createState() => _BasketState();
 }
 
 class _BasketState extends State<Basket> {
+  List products = [];
   final String _sumOfbasket = '12 000';
 
   @override
   void initState() {
     super.initState();
+    // products =
+    //     widget.data.map((e) => MarketProductItemModel.fromMap(e)).toList();
+
+    print(widget.data);
   }
 
   @override
@@ -39,8 +51,7 @@ class _BasketState extends State<Basket> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.pop(
-                  context, widget.basketData); // Return updated basketData
+              Navigator.pop(context); // Return updated basketData
             },
           ),
           actions: [

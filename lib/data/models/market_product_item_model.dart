@@ -5,6 +5,9 @@ class MarketProductItemModel {
   String photo;
   String measurementValue;
   String description;
+  String type;
+  String id;
+  int count;
 
   MarketProductItemModel(
       {required this.name,
@@ -12,7 +15,10 @@ class MarketProductItemModel {
       required this.unitOfMeasure,
       required this.photo,
       required this.price,
-      required this.description});
+      required this.description,
+      required this.type,
+      required this.id,
+      required this.count});
 
   factory MarketProductItemModel.fromMap(Map<String, dynamic> map) {
     return MarketProductItemModel(
@@ -21,6 +27,9 @@ class MarketProductItemModel {
         unitOfMeasure: map["unitOfMeasure"],
         photo: map["photo"],
         price: map["price"],
-        description: map["description"]);
+        description: map["description"],
+        type: map["type"],
+        count: map["count"] ?? 0,
+        id: map["id"]);
   }
 }

@@ -86,6 +86,7 @@ class FirebaseDatabaseService {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         String photo = await _fStorage.ref(data["photo"]).getDownloadURL();
         data["photo"] = photo;
+        data["count"] = 0;
         markets.add(data);
         print("data: $data");
       }
