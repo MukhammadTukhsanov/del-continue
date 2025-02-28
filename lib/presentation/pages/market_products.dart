@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
+import 'package:geo_scraper_mobile/presentation/utils/remove_spaces_and_convert_to_int.dart';
 import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/basket.dart';
@@ -11,11 +12,14 @@ class MarketProducts extends StatefulWidget {
   final String id;
   final int activeIndex;
   final String afterFree;
+  final String deliveryPrice;
+
   const MarketProducts(
       {super.key,
       required this.activeIndex,
       required this.id,
-      required this.afterFree});
+      required this.afterFree,
+      required this.deliveryPrice});
 
   @override
   _MarketProductsState createState() => _MarketProductsState();
@@ -24,11 +28,12 @@ class MarketProducts extends StatefulWidget {
 class _MarketProductsState extends State<MarketProducts> {
   List originalProducts = [];
   List products = [];
+  List basket = [];
 
   int activeIndex = 0;
   int intAfterFreeDelivery = 0;
 
-  List basket = [];
+  bool isDeliveryFree = false;
 
   @override
   void initState() {
@@ -54,21 +59,22 @@ class _MarketProductsState extends State<MarketProducts> {
     }
   }
 
-  Map<String, int> productCounts = {};
   int totalProductCount = 0;
   int totalPrice = 0;
 
-  int removeSpacesAndConvertToInt(String input) {
-    String cleanedString = input.replaceAll(RegExp(r'\s+'), "");
-    return int.tryParse(cleanedString) ?? 0;
+  void checkIsDeliveryFree() {
+    if (totalPrice >= removeSpacesAndConvertToInt(widget.afterFree)) {
+      setState(() {
+        isDeliveryFree = true;
+      });
+    } else {
+      setState(() {
+        isDeliveryFree = false;
+      });
+    }
   }
 
-  String formatNumber(int number) {
-    return NumberFormat("#,##0", "ru_RU").format(number).replaceAll(',', ' ');
-  }
-
-  void addProductCount(
-      String productId, String price, MarketProductItemModel product) {
+  void addProductCount(String productId, String price, product) {
     int intPrice = removeSpacesAndConvertToInt(price);
     int index = basket.indexWhere((item) => item.id == product.id);
 
@@ -79,27 +85,28 @@ class _MarketProductsState extends State<MarketProducts> {
         product.count = 1;
         basket.add(product);
       }
-
-      productCounts[productId] = (productCounts[productId] ?? 0) + 1;
       totalProductCount++;
       totalPrice += intPrice;
     });
-
-    print("basket: $basket");
+    checkIsDeliveryFree();
   }
 
   void removeProductCount(String productId, String price) {
     int intPrice = removeSpacesAndConvertToInt(price);
-    setState(() {
-      if ((productCounts[productId] ?? 0) > 0) {
-        productCounts[productId] = productCounts[productId]! - 1;
+    int index = basket.indexWhere((item) => item.id == productId);
+
+    if (index != -1) {
+      setState(() {
+        basket[index].count -= 1;
         totalProductCount--;
-        totalPrice = totalPrice - intPrice;
-      }
-      if (productCounts[productId] == 0) {
-        productCounts.remove(productId);
-      }
-    });
+        totalPrice -= intPrice;
+
+        if (basket[index].count == 0) {
+          basket.removeAt(index);
+        }
+      });
+    }
+    checkIsDeliveryFree();
   }
 
   void _handleHeaderFilter(int index) {
@@ -113,6 +120,29 @@ class _MarketProductsState extends State<MarketProducts> {
               .where((e) => e.type == menuItems[index]["id"])
               .toList();
     });
+  }
+
+  void goToBasket() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Basket(
+            totalPrice: totalPrice,
+            data: basket,
+            id: widget.id,
+            deliveryPrice: widget.deliveryPrice,
+            afterFree: widget.afterFree,
+            isDeliveryFree: isDeliveryFree),
+      ),
+    );
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        totalPrice = result['newtotalPrice'];
+        basket = (result['updatedProducts'] as List<dynamic>)
+            .map((e) => MarketProductItemModel.fromMap(e))
+            .toList();
+      });
+    }
   }
 
   @override
@@ -146,7 +176,15 @@ class _MarketProductsState extends State<MarketProducts> {
                   itemCount: products.length,
                   itemBuilder: ((context, index) {
                     final product = products[index];
-                    final count = productCounts[product.id] ?? 0;
+                    int count = 0;
+
+                    try {
+                      count = basket
+                          .firstWhere((item) => item.id == product.id)
+                          .count;
+                    } catch (e) {
+                      count = 0;
+                    }
                     return MarketProductItem(
                       count: count,
                       onAdd: () =>
@@ -182,24 +220,8 @@ class _MarketProductsState extends State<MarketProducts> {
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              (intAfterFreeDelivery - totalPrice > 0)
+                              (isDeliveryFree)
                                   ? Row(
-                                      children: [
-                                        Image.asset(
-                                          "assets/images/persent.png",
-                                          scale: 12,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "${formatNumber(intAfterFreeDelivery - totalPrice)} So`mdan keyin bepul yetkarip beriladi",
-                                          style: TextStyle(
-                                              color: Color(0xff3c486b),
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600),
-                                        )
-                                      ],
-                                    )
-                                  : Row(
                                       children: [
                                         Icon(
                                           Icons.check_circle,
@@ -209,6 +231,22 @@ class _MarketProductsState extends State<MarketProducts> {
                                         const SizedBox(width: 8),
                                         Text(
                                           "Sizga bepul yetkazip beriladi.",
+                                          style: TextStyle(
+                                              color: Color(0xff3c486b),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600),
+                                        )
+                                      ],
+                                    )
+                                  : Row(
+                                      children: [
+                                        Image.asset(
+                                          "assets/images/persent.png",
+                                          scale: 12,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "${formatNumber(intAfterFreeDelivery - totalPrice)} So`mdan keyin bepul yetkarip beriladi",
                                           style: TextStyle(
                                               color: Color(0xff3c486b),
                                               fontSize: 14,
@@ -228,40 +266,26 @@ class _MarketProductsState extends State<MarketProducts> {
                                 ),
                                 builder: (context, value, child) {
                                   return LinearProgressIndicator(
-                                    borderRadius: BorderRadius.circular(10),
-                                    value: value,
-                                    backgroundColor: const Color(0xffd9d9d9),
-                                    color:
-                                        (intAfterFreeDelivery - totalPrice > 0)
-                                            ? const Color(0xffff9556)
-                                            : Colors.green,
-                                  );
+                                      borderRadius: BorderRadius.circular(10),
+                                      value: value,
+                                      backgroundColor: const Color(0xffd9d9d9),
+                                      color: (isDeliveryFree)
+                                          ? Colors.green
+                                          : const Color(0xffff9556));
                                 },
                               ),
                               const SizedBox(height: 8),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color(0xffff9556), // Button color
+                                  backgroundColor: const Color(0xffff9556),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        6), // Rounded corners
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10),
-                                  minimumSize: const Size(
-                                      double.infinity, 36), // Full width
+                                  minimumSize: const Size(double.infinity, 36),
                                 ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Basket(
-                                                basketProducts: productCounts,
-                                                totalPrice: totalPrice,
-                                                data: basket,
-                                              )));
-                                },
+                                onPressed: goToBasket,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,

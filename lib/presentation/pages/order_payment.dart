@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
-import 'package:geo_scraper_mobile/presentation/screens/map_screen.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
 import 'package:location/location.dart';
 
 class OrderPayment extends StatefulWidget {
-  const OrderPayment({super.key});
+  final String id;
+  final List<dynamic> basket;
+  final int totalPrice;
+  const OrderPayment(
+      {super.key,
+      required this.id,
+      required this.basket,
+      required this.totalPrice});
 
   @override
   _OrderPaymentState createState() => _OrderPaymentState();
@@ -47,7 +53,6 @@ class _OrderPaymentState extends State<OrderPayment> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Unfocus the text field when tapping outside
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Scaffold(
@@ -59,7 +64,6 @@ class _OrderPaymentState extends State<OrderPayment> {
         body: Column(children: [
           Expanded(
             child: SingleChildScrollView(
-              // Allow scrolling if necessary
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Column(

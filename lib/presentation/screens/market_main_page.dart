@@ -65,7 +65,9 @@ class _MarketMainPageState extends State<MarketMainPage> {
                                   activeIndex: index,
                                   id: widget.listItemModel.id,
                                   afterFree: widget
-                                      .listItemModel.deliveryPriceAfterFree))),
+                                      .listItemModel.deliveryPriceAfterFree,
+                                  deliveryPrice:
+                                      widget.listItemModel.deliveryPrice))),
                       key: ValueKey("${item["imageSrc"]} + $index"),
                       child: Column(
                         children: [

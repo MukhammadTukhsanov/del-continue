@@ -32,4 +32,18 @@ class MarketProductItemModel {
         count: map["count"] ?? 0,
         id: map["id"]);
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'measurementValue': measurementValue,
+      'unitOfMeasure': unitOfMeasure,
+      'photo': photo,
+      'price': price,
+      'description': description,
+      'type': type,
+      'count': count,
+      'id': id,
+    };
+  }
 }
