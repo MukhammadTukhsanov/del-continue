@@ -7,9 +7,11 @@ import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart'
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/basket.dart';
 import 'package:geo_scraper_mobile/presentation/state/market_main_page_menu_items.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/empty_place.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/header_slider_menu.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/main_pages_header.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/market_product_item.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
 
 class MarketProducts extends StatefulWidget {
   final String id;
@@ -43,17 +45,21 @@ class _MarketProductsState extends State<MarketProducts> {
   int intAfterFreeDelivery = 0;
 
   bool isDeliveryFree = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     activeIndex = widget.activeIndex;
     intAfterFreeDelivery = removeSpacesAndConvertToInt(widget.afterFree);
-    print("type: ${widget.type}");
     fetchSingleMarket(widget.id);
   }
 
   Future<void> fetchSingleMarket(String id) async {
+    setState(() {
+      isLoading = true;
+    });
+    // await Future.delayed(Duration(seconds: 24));
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
     List<Map<String, dynamic>>? productsData =
         await databaseService.fetchSingleMarket(
@@ -64,9 +70,12 @@ class _MarketProductsState extends State<MarketProducts> {
         originalProducts =
             productsData.map((e) => MarketProductItemModel.fromMap(e)).toList();
         _handleHeaderFilter(activeIndex);
+        isLoading = false;
       });
     } else {
-      print("No products found");
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -184,49 +193,63 @@ class _MarketProductsState extends State<MarketProducts> {
                 ),
               const Divider(color: Color(0xffd8dae1), height: 1),
               Expanded(
-                  child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: GridView.builder(
-                  padding: const EdgeInsets.only(top: 10),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: widget.type == "kitchen" ? 1 : 2,
-                      mainAxisSpacing: widget.type == "kitchen" ? 20 : 10,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: widget.type == "kitchen" ? 3.65 : .67),
-                  itemCount: products.length,
-                  itemBuilder: ((context, index) {
-                    final product = products[index];
-                    int count = 0;
+                  child: products.isEmpty && !isLoading
+                      ? EmptyPlace(svgSrc: "assets/icons/bag-02.svg")
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: GridView.builder(
+                            padding: const EdgeInsets.only(top: 10),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: widget.type == "kitchen"
+                                        ? 1
+                                        : 2,
+                                    mainAxisSpacing:
+                                        widget.type == "kitchen" ? 20 : 10,
+                                    crossAxisSpacing: 12,
+                                    childAspectRatio:
+                                        widget.type == "kitchen" ? 3.65 : .67),
+                            itemCount: isLoading ? 6 : products.length,
+                            itemBuilder: ((context, index) {
+                              if (isLoading && widget.type == 'kitchen') {
+                                return ShimmerLoaders.kitchenShimmer(context);
+                              }
+                              if (products.isEmpty && isLoading) {
+                                return ShimmerLoaders.MarketProductShimmer(
+                                    context);
+                              }
+                              final product = products[index];
+                              int count = 0;
 
-                    try {
-                      count = basket
-                          .firstWhere((item) => item.id == product.id)
-                          .count;
-                    } catch (e) {
-                      count = 0;
-                    }
-                    if (widget.type == 'kitchen') {
-                      return KitchenMainPage(
-                        count: count,
-                        onAdd: () =>
-                            addProductCount(product.id, product.price, product),
-                        onRemove: () =>
-                            removeProductCount(product.id, product.price),
-                        marketProductItemModel: product,
-                      );
-                    } else {
-                      return MarketProductItem(
-                        count: count,
-                        onAdd: () =>
-                            addProductCount(product.id, product.price, product),
-                        onRemove: () =>
-                            removeProductCount(product.id, product.price),
-                        marketProductItemModel: product,
-                      );
-                    }
-                  }),
-                ),
-              )),
+                              try {
+                                count = basket
+                                    .firstWhere((item) => item.id == product.id)
+                                    .count;
+                              } catch (e) {
+                                count = 0;
+                              }
+                              if (widget.type == 'kitchen') {
+                                return KitchenProductItem(
+                                  count: count,
+                                  onAdd: () => addProductCount(
+                                      product.id, product.price, product),
+                                  onRemove: () => removeProductCount(
+                                      product.id, product.price),
+                                  marketProductItemModel: product,
+                                );
+                              } else {
+                                return MarketProductItem(
+                                  count: count,
+                                  onAdd: () => addProductCount(
+                                      product.id, product.price, product),
+                                  onRemove: () => removeProductCount(
+                                      product.id, product.price),
+                                  marketProductItemModel: product,
+                                );
+                              }
+                            }),
+                          ),
+                        )),
               AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   transitionBuilder:

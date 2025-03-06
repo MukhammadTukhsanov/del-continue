@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 
-class KitchenMainPage extends StatefulWidget {
+class KitchenProductItem extends StatefulWidget {
   final MarketProductItemModel marketProductItemModel;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
   final int count;
-  const KitchenMainPage(
+  const KitchenProductItem(
       {super.key,
       required this.marketProductItemModel,
       required this.onAdd,
@@ -17,10 +17,10 @@ class KitchenMainPage extends StatefulWidget {
       required this.count});
 
   @override
-  _KitchenMainPageState createState() => _KitchenMainPageState();
+  _KitchenProductItemState createState() => _KitchenProductItemState();
 }
 
-class _KitchenMainPageState extends State<KitchenMainPage> {
+class _KitchenProductItemState extends State<KitchenProductItem> {
   String locationMessage = "Joylashuv aniqlanyapti...";
   String street = "";
   String locality = "";

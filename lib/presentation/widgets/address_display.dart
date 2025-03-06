@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
-import 'package:geo_scraper_mobile/presentation/pages/markets.dart';
+import 'package:geo_scraper_mobile/presentation/pages/all_items.dart';
 import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
 
@@ -495,7 +495,7 @@ class HeaderMenu extends StatelessWidget {
       "imagePath": "./assets/images/moreSales.png",
       "onTap": (BuildContext context) {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Markets()));
+            context, MaterialPageRoute(builder: (context) => const AllItems()));
       }
     },
     {

@@ -7,15 +7,17 @@ import 'package:geo_scraper_mobile/presentation/widgets/horizontal_list_item.dar
 import 'package:geo_scraper_mobile/presentation/widgets/list_title.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/vertical_list_item.dart';
 
-class Markets extends StatefulWidget {
-  const Markets({super.key});
+enum AllItemsType { kitchens, markets }
+
+class AllItems extends StatefulWidget {
+  final AllItemsType? type;
+  const AllItems({super.key, this.type});
 
   @override
-  _MarketsState createState() => _MarketsState();
+  _AllItemsState createState() => _AllItemsState();
 }
 
-class _MarketsState extends State<Markets> {
-  String locationMessage = "Joylashuv aniqlanyapti...";
+class _AllItemsState extends State<AllItems> {
   String street = "";
   String locality = "";
   String country = "";
@@ -26,8 +28,16 @@ class _MarketsState extends State<Markets> {
   @override
   void initState() {
     super.initState();
-    _getMarkets();
-    _getAddress();
+    initialize();
+  }
+
+  initialize() async {
+    if (widget.type == AllItemsType.kitchens) {
+      await _getKitchens();
+    } else {
+      await _getMarkets();
+    }
+    await _getAddress();
   }
 
   List<ListItemModel> _markets = [];
@@ -35,6 +45,17 @@ class _MarketsState extends State<Markets> {
 
   Future<void> _getMarkets() async {
     final data = await StorageService.getDataFromLocal(StorageType.markets);
+
+    setState(() {
+      _markets = data.map((map) {
+        return ListItemModel.fromMap(map);
+      }).toList();
+      _filteredMarkets = _markets;
+    });
+  }
+
+  Future<void> _getKitchens() async {
+    final data = await StorageService.getDataFromLocal(StorageType.kitchens);
 
     setState(() {
       _markets = data.map((map) {
@@ -109,7 +130,10 @@ class _MarketsState extends State<Markets> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            ListTitle(title: "Mashhur do`konlar", icon: false),
+            ListTitle(
+                title:
+                    "Mashhur ${widget.type == AllItemsType.kitchens ? "oshxonalar" : "do`konlar"}",
+                icon: false),
             SizedBox(
               height: 243,
               child: ListView.separated(
@@ -125,11 +149,13 @@ class _MarketsState extends State<Markets> {
             const SizedBox(height: 10),
             const Divider(color: Color(0xffd8dae1), height: 1),
             const SizedBox(height: 10),
-            HeaderSliderMenu(
-              data: marketsHeaderMenuItems,
-              activeIndex: _activeIndex,
-              onItemSelected: _handleFilterChange,
-            ),
+            Visibility(
+                visible: widget.type != AllItemsType.kitchens,
+                child: HeaderSliderMenu(
+                  data: marketsHeaderMenuItems,
+                  activeIndex: _activeIndex,
+                  onItemSelected: _handleFilterChange,
+                )),
             const SizedBox(height: 10),
             ListView.separated(
               shrinkWrap: true,

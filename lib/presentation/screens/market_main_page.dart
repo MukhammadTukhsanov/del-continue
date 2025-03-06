@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/market_products.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 import 'package:geo_scraper_mobile/presentation/state/market_main_page_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/main_pages_header.dart';
 

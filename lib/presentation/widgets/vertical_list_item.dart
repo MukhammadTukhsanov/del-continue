@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 import 'package:geo_scraper_mobile/presentation/screens/market_main_page.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
+import 'package:shimmer/shimmer.dart';
 
 class VerticalListItem extends StatelessWidget {
   final ListItemModel listItemModel;
@@ -18,27 +21,15 @@ class VerticalListItem extends StatelessWidget {
                     listItemModel: listItemModel,
                   ))),
       child: Container(
+        color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           children: [
-            _buildImage(),
+            ShimmerLoaders.imageWithShimmer(
+                context, listItemModel.photo, 120, 120),
             const SizedBox(width: 10),
             _buildDetails(),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImage() {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        image: DecorationImage(
-          image: NetworkImage(listItemModel.photo),
-          fit: BoxFit.cover,
         ),
       ),
     );

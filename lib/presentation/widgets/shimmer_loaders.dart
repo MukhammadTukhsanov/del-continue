@@ -26,7 +26,7 @@ class ShimmerLoaders {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         itemCount: 3,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) => _verticalListItemShimmer(context),
+        itemBuilder: (context, index) => verticalListItemShimmer(context),
       );
     } else {
       return SizedBox();
@@ -121,7 +121,7 @@ class ShimmerLoaders {
     );
   }
 
-  static Widget _verticalListItemShimmer(BuildContext context) {
+  static Widget verticalListItemShimmer(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
@@ -180,38 +180,6 @@ class ShimmerLoaders {
                   const SizedBox(height: 6),
                   _shimmerBox(
                       width: MediaQuery.sizeOf(context).width, height: 20)
-                  // Row(
-                  //   children: [
-                  //     _buildIcon("assets/icons/clock.svg"),
-                  //     const SizedBox(width: 3),
-                  //     Text(
-                  //         "${listItemModel.minDeliveryTime} - ${listItemModel.maxDeliveryTime} min",
-                  //         style: TextStyle(color: Color(0x993c486b), fontSize: 14)),
-                  //     _buildIcon("assets/icons/dot.svg"),
-                  //     _buildIcon("assets/icons/delivery.svg"),
-                  //     const SizedBox(width: 3),
-                  //     Text(listItemModel.deliveryPrice,
-                  //         style: TextStyle(
-                  //             color: Color(0x703c486b), fontWeight: FontWeight.w400)),
-                  //   ],
-                  // ),
-                  // const SizedBox(height: 6),
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  //   decoration: BoxDecoration(
-                  //     border: Border.all(color: const Color(0x803c486b)),
-                  //     borderRadius: BorderRadius.circular(20),
-                  //     color: const Color(0x103c486b),
-                  //   ),
-                  //   child: Text(
-                  //     "Tekin yetkazib berish ${listItemModel.deliveryPriceAfterFree} dan yuqori savdoda.",
-                  //     style: TextStyle(
-                  //         fontSize: 13,
-                  //         color: Color(0xff3c486b),
-                  //         fontWeight: FontWeight.w600),
-                  //     overflow: TextOverflow.ellipsis,
-                  //   ),
-                  // ),
                 ],
               ),
             )
@@ -221,7 +189,138 @@ class ShimmerLoaders {
     );
   }
 
-  // Reusable shimmer box
+  static Widget MarketProductShimmer(BuildContext context) {
+    return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                decoration: BoxDecoration(
+                    border:
+                        Border.all(width: 1, color: const Color(0x333c486b)),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Stack(
+                  children: [
+                    _shimmerBox(
+                        width: MediaQuery.sizeOf(context).width / 2 - 10,
+                        height: MediaQuery.sizeOf(context).width / 2 - 10),
+                  ],
+                )),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 20,
+              children: [
+                _shimmerBox(width: 50, height: 17),
+                _shimmerBox(width: 60, height: 17)
+              ],
+            ),
+            const SizedBox(
+              height: 2,
+            ),
+            _shimmerBox(width: double.infinity, height: 14),
+            const SizedBox(height: 2),
+            _shimmerBox(width: 110, height: 14)
+          ],
+        ));
+  }
+
+  static Widget kitchenShimmer(BuildContext context) {
+    return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: SizedBox(
+          width: double.infinity,
+          child: Row(
+            children: [
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  spacing: 12,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _shimmerBox(width: 150, height: 17),
+                    _shimmerBox(width: 90, height: 14),
+                    _shimmerBox(width: double.infinity, height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _shimmerBox(width: 120, height: 17),
+                        Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20)))
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
+  static Widget imageWithShimmer(
+      BuildContext context, String imageUrl, double width, double height) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: Color(0xffD8DAE1)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          imageUrl,
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            }
+            return Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.error, color: Colors.red),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   static Widget _shimmerBox({required double width, required double height}) {
     return Container(
       width: width,

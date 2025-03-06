@@ -83,12 +83,12 @@ class _ProfileState extends State<Profile> {
             child: Column(
           children: [
             _userInfo(),
-            SizedBox(height: 16),
             Visibility(
-                visible: true,
+                visible: user.isNotEmpty ? user[0]["isVerified"] : false,
                 child: Column(
                   spacing: 16,
                   children: [
+                    SizedBox(height: 16),
                     Container(
                         width: double.infinity,
                         height: 36,
@@ -102,7 +102,7 @@ class _ProfileState extends State<Profile> {
                             Icon(Icons.info_outline, color: Colors.red),
                             Expanded(
                                 child: Text(
-                              "Telefon raqam tasdiqlanmagan !",
+                              "Telefon raqam tasdiqlanmagan!",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,

@@ -70,22 +70,27 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        items: _navItems.map((item) {
-          int index = _navItems.indexOf(item);
-          return BottomNavigationBarItem(
-            icon: _buildSvgIcon(item['icon']!, _selectedIndex == index),
-            label: item['label'],
-          );
-        }).toList(),
-        selectedItemColor: const Color(0xffff9556),
-        unselectedItemColor: const Color(0x703c486b),
-        selectedLabelStyle:
-            const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+            border:
+                Border(top: BorderSide(color: Color(0xffd8dae1), width: 1))),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          items: _navItems.map((item) {
+            int index = _navItems.indexOf(item);
+            return BottomNavigationBarItem(
+              icon: _buildSvgIcon(item['icon']!, _selectedIndex == index),
+              label: item['label'],
+            );
+          }).toList(),
+          selectedItemColor: const Color(0xffff9556),
+          unselectedItemColor: const Color(0x703c486b),
+          selectedLabelStyle:
+              const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
       body: _pages[_selectedIndex],
     );

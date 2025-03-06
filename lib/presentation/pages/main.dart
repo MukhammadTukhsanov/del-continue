@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
-import 'package:geo_scraper_mobile/presentation/pages/markets.dart';
+import 'package:geo_scraper_mobile/presentation/pages/all_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/horizontal_list_item.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/list_title.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
@@ -32,7 +32,7 @@ List<Map<String, dynamic>> menuItems = [
     "imagePath": "./assets/images/moreSales.png",
     "onTap": (BuildContext context) {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const Markets()));
+          context, MaterialPageRoute(builder: (context) => const AllItems()));
     }
   },
   {
@@ -179,7 +179,7 @@ class _MainState extends State<Main> {
           ListTitle(title: "Do`konlar", type: ListTitleTyps.markets),
           _buildMarketsList(),
           const SizedBox(height: 16),
-          ListTitle(title: "Oshxonalar"),
+          ListTitle(title: "Oshxonalar", type: ListTitleTyps.kitchens),
           _buildKitchenList(),
         ],
       ),
@@ -236,7 +236,7 @@ class _MainState extends State<Main> {
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.only(bottom: 12),
           itemCount: displayedMarkets.length,
           separatorBuilder: (_, __) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
@@ -265,7 +265,7 @@ class _MainState extends State<Main> {
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.only(bottom: 12),
           itemCount: displayedMarkets.length,
           separatorBuilder: (_, __) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
