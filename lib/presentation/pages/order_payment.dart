@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
+import 'package:geo_scraper_mobile/presentation/pages/home.dart';
+import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
+import 'package:geo_scraper_mobile/presentation/utils/remove_spaces_and_convert_to_int.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
-import 'package:location/location.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class OrderPayment extends StatefulWidget {
   final String id;
+  final bool isDeliveryFree;
+  final String deliveryPrice;
   final List<dynamic> basket;
   final int totalPrice;
-  const OrderPayment(
-      {super.key,
-      required this.id,
-      required this.basket,
-      required this.totalPrice});
+
+  const OrderPayment({
+    super.key,
+    required this.id,
+    required this.isDeliveryFree,
+    required this.deliveryPrice,
+    required this.basket,
+    required this.totalPrice,
+  });
 
   @override
   _OrderPaymentState createState() => _OrderPaymentState();
@@ -27,8 +36,6 @@ class _OrderPaymentState extends State<OrderPayment> {
 
   final TextEditingController _addresController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
-  final Location _location = Location();
 
   @override
   void initState() {
@@ -49,6 +56,113 @@ class _OrderPaymentState extends State<OrderPayment> {
     });
   }
 
+  Future<void> sendOrder(List<dynamic> data, String id, bool isDeliveryFree,
+      String deliveryPrice, int totalPrice, BuildContext context) async {
+    _showAlertDialog(
+        context, "Buyurmangiz qabul qilindi tez orada yetkaziladi.", () {
+      setState(() {});
+      Navigator.of(context).pop();
+    });
+    // FirebaseDatabaseService databaseService = FirebaseDatabaseService();
+    // await databaseService.sendOrder(
+    //     data, id, isDeliveryFree, deliveryPrice, totalPrice);
+  }
+
+  void _showAlertDialog(
+      BuildContext context, String subtitle, VoidCallback onSubmit) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) {}
+          },
+          child: AlertDialog(
+            backgroundColor: Colors.white,
+            title: LoadingAnimationWidget.halfTriangleDot(
+                color: Color(0xff3c486b), size: 50),
+            content: SizedBox(
+              height: 102,
+              child: Column(
+                spacing: 16,
+                children: [
+                  Text(
+                    "Tayyor!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Color(0xff3c486b),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 24),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 18, color: Color(0xff3c486b)),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              Row(
+                spacing: 10,
+                children: [
+                  Expanded(
+                      child: ElevatedButton(
+                    style: ButtonStyle(
+                      fixedSize:
+                          WidgetStateProperty.all(const Size.fromHeight(51)),
+                      backgroundColor:
+                          const WidgetStatePropertyAll(Color(0xffff9556)),
+                      shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      )),
+                    ),
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => Home()),
+                          (Route<dynamic> route) => false);
+                    },
+                    child: const Text(
+                      "Savdoga qaytish",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xffffffff),
+                      ),
+                    ),
+                  )),
+                  // Expanded(
+                  //     child: ElevatedButton(
+                  //   style: ButtonStyle(
+                  //     fixedSize:
+                  //         WidgetStateProperty.all(const Size.fromHeight(51)),
+                  //     backgroundColor:
+                  //         const WidgetStatePropertyAll(Color(0xfff8f8fa)),
+                  //     shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //     )),
+                  //   ),
+                  //   onPressed: onSubmit,
+                  //   child: const Text(
+                  //     "O`chirish",
+                  //     style: TextStyle(
+                  //       fontSize: 16,
+                  //       fontWeight: FontWeight.w500,
+                  //       color: Color(0xff898e96),
+                  //     ),
+                  //   ),
+                  // )),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -58,6 +172,7 @@ class _OrderPaymentState extends State<OrderPayment> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           title: const Text("To`lov"),
         ),
         backgroundColor: Colors.white,
@@ -89,6 +204,7 @@ class _OrderPaymentState extends State<OrderPayment> {
                                 label: "Manzil",
                                 controller: _addresController,
                                 focusNode: _focusNode,
+                                maxLines: 1,
                               ),
                             ],
                           ),
@@ -184,6 +300,37 @@ class _OrderPaymentState extends State<OrderPayment> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 20),
+                    Column(
+                      spacing: 16,
+                      children: [
+                        ...widget.basket.asMap().entries.map((entrie) {
+                          var item = entrie.value;
+                          int index = entrie.key;
+                          return Row(
+                            children: [
+                              Text('${item["name"]}'),
+                              Expanded(
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    int dotCount =
+                                        (constraints.maxWidth / 6).floor();
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: List.generate(
+                                          dotCount, (index) => Text('.')),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Text(
+                                  '${item['price']} X ${item['count']}${item['unitOfMeasure']} X ${formatNumber(removeSpacesAndConvertToInt(item['price']) * item['count'])}so`m'),
+                            ],
+                          );
+                        })
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -196,23 +343,42 @@ class _OrderPaymentState extends State<OrderPayment> {
                     top: BorderSide(width: 1, color: Color(0x203c486b)))),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Yetkazib berish",
-                      style: TextStyle(
-                          color: Color(0xff3c486b),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Text("10 000 So`m",
-                        style: TextStyle(
-                            color: Color(0xff3c486b),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600))
-                  ],
-                ),
+                (widget.isDeliveryFree)
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            size: 20,
+                            color: Colors.green,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Sizga bepul yetkazip beriladi.",
+                            style: TextStyle(
+                                color: Color(0xff3c486b),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600),
+                          )
+                        ],
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Yetkazib berish",
+                            style: TextStyle(
+                                color: Color(0xff3c486b),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          Text("10 000 So`m",
+                              style: TextStyle(
+                                  color: Color(0xff3c486b),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600))
+                        ],
+                      ),
                 SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -225,7 +391,7 @@ class _OrderPaymentState extends State<OrderPayment> {
                           fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      "110 000 So`m",
+                      "${formatNumber(widget.totalPrice + (widget.isDeliveryFree ? 0 : removeSpacesAndConvertToInt(widget.deliveryPrice)))} So`m",
                       style: TextStyle(
                           color: Color(0xff3c486b),
                           fontSize: 22,
@@ -236,8 +402,18 @@ class _OrderPaymentState extends State<OrderPayment> {
                 SizedBox(height: 24),
                 SizedBox(
                     width: double.infinity,
-                    child:
-                        CustomButton(text: "Buyurtma berish", onPressed: () {}))
+                    child: CustomButton(
+                      text: "Buyurtma berish",
+                      onPressed: () {
+                        sendOrder(
+                            widget.basket,
+                            widget.id,
+                            widget.isDeliveryFree,
+                            widget.deliveryPrice,
+                            widget.totalPrice,
+                            context);
+                      },
+                    ))
               ],
             ),
           )

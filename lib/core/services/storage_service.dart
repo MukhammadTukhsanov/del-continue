@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum StorageType { markets, kitchens }
+enum StorageType { markets, kitchens, userInfo }
 
 class StorageService {
   static const String _addressKey = "savedAddress";
@@ -10,6 +10,7 @@ class StorageService {
   static const Map<StorageType, String> _storageKeys = {
     StorageType.markets: "markets_list",
     StorageType.kitchens: "kitchens_list",
+    StorageType.userInfo: "user_info"
   };
 
   static Future<void> saveUserLocation(
@@ -36,7 +37,6 @@ class StorageService {
       String? locationJson = pref.getString(_locationKey);
 
       if (locationJson != null) {
-        // Decode the JSON string back to a map
         Map<String, dynamic> decoded = jsonDecode(locationJson);
         return {
           "latitude": decoded["latitude"],
@@ -44,7 +44,7 @@ class StorageService {
         };
       }
 
-      return null; // Return null if no location is found
+      return null;
     } catch (e) {
       print("❌ Error retrieving location: $e");
       return null;
@@ -76,7 +76,7 @@ class StorageService {
       if (addressJson != null) {
         return Map<String, String>.from(jsonDecode(addressJson));
       }
-      return {}; // Return an empty map instead of null
+      return {};
     } catch (e) {
       print("❌ Error retrieving address: $e");
       return {};
@@ -107,5 +107,19 @@ class StorageService {
       print("❌ Error fetching ${type.name} from local storage: $e");
     }
     return [];
+  }
+
+  static Future removeDataFtomLocal(StorageType type) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_storageKeys[type]!);
+    } catch (e) {
+      print("Error on removing: $e");
+    }
+  }
+
+  static Future<void> markOnboardingAsSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenOnboarding', true);
   }
 }

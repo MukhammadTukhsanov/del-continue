@@ -171,7 +171,7 @@ class _CategoryState extends State<Category> {
                           ),
                         ),
                       ),
-                      Text("Go`sht",
+                      Text("Ovqat",
                           style: TextStyle(
                               fontSize: 18,
                               color: Color(0xff3c486b),

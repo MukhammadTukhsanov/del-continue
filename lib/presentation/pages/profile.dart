@@ -3,10 +3,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geo_scraper_mobile/core/services/auth_service.dart';
+import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/deliveryAddress.dart';
 import 'package:geo_scraper_mobile/presentation/pages/editPhoneNumber.dart';
 import 'package:geo_scraper_mobile/presentation/pages/favorites.dart';
+import 'package:geo_scraper_mobile/presentation/pages/login.dart';
+import 'package:geo_scraper_mobile/presentation/pages/send_otp.dart';
 import 'package:geo_scraper_mobile/presentation/pages/transactions.dart';
+import 'package:geo_scraper_mobile/presentation/utils/phone_number_format_with_space.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -24,6 +29,34 @@ class _ProfileState extends State<Profile> {
   int? selectedIndex = 0;
 
   List<String> languages = ["Ozbekcha", "Русский"];
+
+  List<Map<String, dynamic>> user = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    List<Map<String, dynamic>> fetchedUser =
+        await StorageService.getDataFromLocal(StorageType.userInfo);
+
+    setState(() {
+      user = fetchedUser;
+    });
+
+    print(user);
+  }
+
+  Future<void> onLogout() async {
+    FirebaseAuthService firebaseAuthService = FirebaseAuthService();
+
+    await firebaseAuthService.logout();
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => Login()));
+  }
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -50,9 +83,49 @@ class _ProfileState extends State<Profile> {
             child: Column(
           children: [
             _userInfo(),
+            SizedBox(height: 16),
+            Visibility(
+                visible: true,
+                child: Column(
+                  spacing: 16,
+                  children: [
+                    Container(
+                        width: double.infinity,
+                        height: 36,
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(6)),
+                        child: Row(
+                          spacing: 6,
+                          children: [
+                            Icon(Icons.info_outline, color: Colors.red),
+                            Expanded(
+                                child: Text(
+                              "Telefon raqam tasdiqlanmagan !",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Colors.red),
+                            ))
+                          ],
+                        )),
+                    CustomButton(
+                        text: "Tasdiqlash",
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => SendOtp(
+                                        isLogged: true,
+                                      )));
+                        },
+                        type: CustomButtonType.outline)
+                  ],
+                )),
             _buildProfileSection([
-              _buildProfileListItem("wallet", "Balans", () {}, "500 000 So`m"),
-              const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
+              // _buildProfileListItem("wallet", "Balans", () {}, "500 000 So`m"),
+              // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
               _buildProfileListItem("transaction", "Tranzaksiyalar", () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => Transactions()));
@@ -166,17 +239,27 @@ class _ProfileState extends State<Profile> {
   Column _userDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text("Eshonov Fakhriyor",
+      children: [
+        Text(
+            "${user.isNotEmpty ? user[0]["username"] : ""} ${user.isNotEmpty ? user[0]["surname"] : ""}",
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: Color(0xff3c486b))),
-        Text("+998 94 124 22 02",
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Color(0x993c486b))),
+        Row(
+          spacing: 6,
+          children: [
+            Icon(Icons.verified, color: Colors.blue, size: 20),
+            Text(
+                user.isNotEmpty
+                    ? formatPhoneNumberWithSpace(user[0]["phoneNumber"])
+                    : "",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0x993c486b))),
+          ],
+        ),
       ],
     );
   }
@@ -246,7 +329,7 @@ class _ProfileState extends State<Profile> {
             "exit.svg",
             "Hisobdan chiqish",
             "Siz haqiqatdan ham chiqishni xoxlaysizmi?",
-            () {},
+            onLogout,
             "Chiqish"),
         child: const Text("Chiqish",
             style: TextStyle(

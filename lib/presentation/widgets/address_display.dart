@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
 import 'package:geo_scraper_mobile/presentation/pages/markets.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_main_page.dart';
+import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
 
 class Main extends StatefulWidget {
@@ -129,8 +129,8 @@ class ListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const KitchenMainPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const SizedBox()));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),

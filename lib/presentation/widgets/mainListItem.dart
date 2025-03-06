@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_main_page.dart';
+import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 
 class MainListItem extends StatelessWidget {
   final String placeName;
@@ -23,7 +23,8 @@ class MainListItem extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const KitchenMainPage()),
+        MaterialPageRoute(builder: (context) => const SizedBox()),
+        // MaterialPageRoute(builder: (context) => const KitchenMainPage()),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),

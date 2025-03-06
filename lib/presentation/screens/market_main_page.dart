@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
 import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/market_products.dart';
+import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 import 'package:geo_scraper_mobile/presentation/state/market_main_page_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/main_pages_header.dart';
 
@@ -19,6 +20,24 @@ class _MarketMainPageState extends State<MarketMainPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.listItemModel.type == 'one-type' ||
+        widget.listItemModel.type == 'kitchen') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MarketProducts(
+              listItemModel: widget.listItemModel,
+              id: widget.listItemModel.id,
+              type: widget.listItemModel.type,
+              afterFree: widget.listItemModel.deliveryPriceAfterFree,
+              activeIndex: 0,
+              deliveryPrice: widget.listItemModel.deliveryPrice,
+            ),
+          ),
+        );
+      });
+    }
   }
 
   @override

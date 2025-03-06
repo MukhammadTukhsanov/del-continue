@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -10,7 +11,13 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final bool readOnly;
+  final String? Function(String?)? validator;
   final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? errorText;
+  final int? maxLength;
+  final TextAlign? textAlign;
+  final ValueChanged<String>? onChanged;
 
   const CustomTextField(
       {super.key,
@@ -23,7 +30,13 @@ class CustomTextField extends StatefulWidget {
       this.controller,
       this.readOnly = false,
       this.focusNode,
-      this.maxLines});
+      this.validator,
+      this.maxLines,
+      this.inputFormatters,
+      this.errorText,
+      this.maxLength,
+      this.textAlign,
+      this.onChanged});
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -34,14 +47,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       maxLines: widget.maxLines,
+      validator: widget.validator,
       readOnly: widget.readOnly,
       focusNode: widget.focusNode,
       controller: widget.controller,
       keyboardType: widget.keyboardType,
       obscureText: widget.visibility ? _isPasswordHidden : false,
+      inputFormatters: widget.inputFormatters,
+      maxLength: widget.maxLength,
+      textAlign: widget.textAlign ?? TextAlign.start,
+      onChanged: widget.onChanged,
       decoration: InputDecoration(
+        counterText: "",
+        errorText: widget.errorText,
         hintText: widget.label,
         hintStyle:
             const TextStyle(color: Color(0xff989FB1), fontSize: 20, height: 1),

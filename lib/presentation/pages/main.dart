@@ -7,6 +7,7 @@ import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
 import 'package:geo_scraper_mobile/presentation/pages/markets.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/horizontal_list_item.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/list_title.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/vertical_list_item.dart';
 
@@ -172,9 +173,12 @@ class _MainState extends State<Main> {
             ),
           ),
           const Divider(thickness: 1, color: Color(0x203c486b), height: 16),
-          ListTitle(title: "Oldingi buyurtmalaringiz"),
-          _buildRecentlyOrderedList(),
-          const SizedBox(height: 12),
+          ListTitle(title: "Mashxur do'konlar", icon: false),
+          _buildFamousMarketsList(),
+          const SizedBox(height: 16),
+          ListTitle(title: "Do`konlar", type: ListTitleTyps.markets),
+          _buildMarketsList(),
+          const SizedBox(height: 16),
           ListTitle(title: "Oshxonalar"),
           _buildKitchenList(),
         ],
@@ -182,12 +186,13 @@ class _MainState extends State<Main> {
     );
   }
 
-  Widget _buildRecentlyOrderedList() {
+  Widget _buildFamousMarketsList() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: StorageService.getDataFromLocal(StorageType.markets),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return ShimmerLoaders.buildShimmerList(
+              context, ShimmerLoadersItems.horizontalListItemShimmer);
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text("Нет данных"));
@@ -218,7 +223,37 @@ class _MainState extends State<Main> {
       future: StorageService.getDataFromLocal(StorageType.kitchens),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return ShimmerLoaders.buildShimmerList(
+              context, ShimmerLoadersItems.verticalListItemShimmer);
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("Нет данных"));
+        }
+
+        final List<ListItemModel> displayedMarkets =
+            snapshot.data!.map((map) => ListItemModel.fromMap(map)).toList();
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: displayedMarkets.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, index) {
+            return VerticalListItem(listItemModel: displayedMarkets[index]);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMarketsList() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: StorageService.getDataFromLocal(StorageType.markets),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return ShimmerLoaders.buildShimmerList(
+              context, ShimmerLoadersItems.verticalListItemShimmer);
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(child: Text("Нет данных"));

@@ -55,7 +55,7 @@ class _BasketState extends State<Basket> {
   }
 
   void checkIsDeliveryFree() {
-    if (totalPrice > removeSpacesAndConvertToInt(widget.afterFree)) {
+    if (totalPrice >= removeSpacesAndConvertToInt(widget.afterFree)) {
       setState(() {
         isDeliveryFree = true;
       });
@@ -96,6 +96,7 @@ class _BasketState extends State<Basket> {
     Navigator.pop(context, {
       'updatedProducts': products,
       'newtotalPrice': totalPrice,
+      'isDeliveryFree': isDeliveryFree
     });
   }
 
@@ -247,7 +248,7 @@ class _BasketState extends State<Basket> {
                       style: TextStyle(fontSize: 24, color: Color(0xff3c486b)),
                     ),
                     Text(
-                      "${formatNumber(totalPrice)} So`m",
+                      "${formatNumber(totalPrice + (isDeliveryFree ? 0 : removeSpacesAndConvertToInt(widget.deliveryPrice)))} So`m",
                       style: TextStyle(fontSize: 36, color: Color(0xff3c486b)),
                     ),
                     Container(
@@ -262,6 +263,8 @@ class _BasketState extends State<Basket> {
                               MaterialPageRoute(
                                   builder: (context) => OrderPayment(
                                       id: widget.id,
+                                      isDeliveryFree: isDeliveryFree,
+                                      deliveryPrice: widget.deliveryPrice,
                                       basket: products,
                                       totalPrice: totalPrice)));
                         },

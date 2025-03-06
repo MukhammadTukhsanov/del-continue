@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/home.dart';
+import 'package:geo_scraper_mobile/presentation/pages/login.dart';
 import 'package:geo_scraper_mobile/presentation/services/geocoding_service.dart';
 
 import '../services/location_service.dart';
@@ -17,14 +19,33 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    fetchData();
-    Future.microtask(() => initializeAddress());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initialize();
+    });
   }
 
-  void fetchData() async {
+  Future initialize() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    try {
+      if (user == null) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => Login()));
+      } else {
+        await fetchData(user.email);
+        await initializeAddress();
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => Home()));
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> fetchData(email) async {
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
     await databaseService.fetchMarkets();
     await databaseService.fetchKitchens();
+    await databaseService.fetchUserInfo(email);
   }
 
   Future<void> initializeAddress() async {
@@ -49,8 +70,8 @@ class _SplashScreenState extends State<SplashScreen> {
       await StorageService.saveAddress(address["street"]!, address["locality"]!,
           address["country"]!, address["region"]!);
 
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const Home()));
+      // Navigator.pushReplacement(
+      //     context, MaterialPageRoute(builder: (_) => const Home()));
     } catch (e) {
       print('Error initializing address: $e');
       // Show error to user

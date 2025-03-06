@@ -76,11 +76,12 @@ class FirebaseDatabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>?> fetchSingleMarket(String id) async {
+  Future<List<Map<String, dynamic>>?> fetchSingleMarket(
+      String id, String type) async {
     List<Map<String, dynamic>> markets = [];
     try {
       CollectionReference singleMarketRef =
-          _firestore.collection("markets").doc(id).collection("products");
+          _firestore.collection(type).doc(id).collection("products");
       QuerySnapshot singleMarketSnapshot = await singleMarketRef.get();
       for (var doc in singleMarketSnapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -96,5 +97,41 @@ class FirebaseDatabaseService {
       print("Error fetching single market: $e");
     }
     return null;
+  }
+
+  Future<void> sendOrder(List<dynamic> data, String id, bool isDeliveryFree,
+      String deliveryPrice, int totalPrice) async {
+    try {
+      await _firestore.collection("markets").doc(id).collection("orders").add({
+        "items": data,
+        "totalPrice": totalPrice,
+        "deliveryPrice": isDeliveryFree ? "free" : deliveryPrice,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+
+      print("Order sent successfully");
+    } catch (e) {
+      print("Error sending order: $e");
+    }
+  }
+
+  Future<void> fetchUserInfo(String email) async {
+    String phoneNumber = email.split('@').first;
+    try {
+      DocumentReference userRef =
+          _firestore.collection("users").doc(phoneNumber);
+      DocumentSnapshot userSnapshot = await userRef.get();
+
+      if (userSnapshot.exists) {
+        print("User Data: ${userSnapshot.data()}");
+        List<Map<String, dynamic>> userDataList = [
+          userSnapshot.data() as Map<String, dynamic>
+        ];
+        StorageService.saveDataLocally(userDataList, StorageType.userInfo);
+      } else
+        print("User not found");
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 }

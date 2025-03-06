@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
+import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
 import 'package:geo_scraper_mobile/presentation/utils/remove_spaces_and_convert_to_int.dart';
 import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
@@ -6,6 +8,7 @@ import 'package:geo_scraper_mobile/data/models/market_product_item_model.dart';
 import 'package:geo_scraper_mobile/presentation/pages/basket.dart';
 import 'package:geo_scraper_mobile/presentation/state/market_main_page_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/header_slider_menu.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/main_pages_header.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/market_product_item.dart';
 
 class MarketProducts extends StatefulWidget {
@@ -13,13 +16,19 @@ class MarketProducts extends StatefulWidget {
   final int activeIndex;
   final String afterFree;
   final String deliveryPrice;
+  final String type;
 
-  const MarketProducts(
-      {super.key,
-      required this.activeIndex,
-      required this.id,
-      required this.afterFree,
-      required this.deliveryPrice});
+  final ListItemModel? listItemModel;
+
+  const MarketProducts({
+    super.key,
+    required this.activeIndex,
+    required this.id,
+    required this.afterFree,
+    required this.deliveryPrice,
+    this.listItemModel,
+    this.type = "",
+  });
 
   @override
   _MarketProductsState createState() => _MarketProductsState();
@@ -40,13 +49,15 @@ class _MarketProductsState extends State<MarketProducts> {
     super.initState();
     activeIndex = widget.activeIndex;
     intAfterFreeDelivery = removeSpacesAndConvertToInt(widget.afterFree);
+    print("type: ${widget.type}");
     fetchSingleMarket(widget.id);
   }
 
   Future<void> fetchSingleMarket(String id) async {
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
     List<Map<String, dynamic>>? productsData =
-        await databaseService.fetchSingleMarket(id);
+        await databaseService.fetchSingleMarket(
+            id, widget.type == "kitchen" ? "kitchens" : "markets");
 
     if (productsData != null) {
       setState(() {
@@ -138,6 +149,7 @@ class _MarketProductsState extends State<MarketProducts> {
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
         totalPrice = result['newtotalPrice'];
+        isDeliveryFree = result['isDeliveryFree'];
         basket = (result['updatedProducts'] as List<dynamic>)
             .map((e) => MarketProductItemModel.fromMap(e))
             .toList();
@@ -156,23 +168,31 @@ class _MarketProductsState extends State<MarketProducts> {
         body: SafeArea(
           child: Column(
             children: [
-              const SizedBox(height: 10),
-              HeaderSliderMenu(
-                  data: menuItems,
-                  activeIndex: widget.activeIndex,
-                  onItemSelected: _handleHeaderFilter),
-              const SizedBox(height: 10),
+              if (widget.type == "kitchen" || widget.type == "one-type")
+                MainPagesHeader(listItemModel: widget.listItemModel!),
+              if (widget.type.isEmpty)
+                Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    HeaderSliderMenu(
+                      data: menuItems,
+                      activeIndex: widget.activeIndex,
+                      onItemSelected: _handleHeaderFilter,
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               const Divider(color: Color(0xffd8dae1), height: 1),
               Expanded(
                   child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: GridView.builder(
                   padding: const EdgeInsets.only(top: 10),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: widget.type == "kitchen" ? 1 : 2,
+                      mainAxisSpacing: widget.type == "kitchen" ? 20 : 10,
                       crossAxisSpacing: 12,
-                      childAspectRatio: .67),
+                      childAspectRatio: widget.type == "kitchen" ? 3.65 : .67),
                   itemCount: products.length,
                   itemBuilder: ((context, index) {
                     final product = products[index];
@@ -185,14 +205,25 @@ class _MarketProductsState extends State<MarketProducts> {
                     } catch (e) {
                       count = 0;
                     }
-                    return MarketProductItem(
-                      count: count,
-                      onAdd: () =>
-                          addProductCount(product.id, product.price, product),
-                      onRemove: () =>
-                          removeProductCount(product.id, product.price),
-                      marketProductItemModel: product,
-                    );
+                    if (widget.type == 'kitchen') {
+                      return KitchenMainPage(
+                        count: count,
+                        onAdd: () =>
+                            addProductCount(product.id, product.price, product),
+                        onRemove: () =>
+                            removeProductCount(product.id, product.price),
+                        marketProductItemModel: product,
+                      );
+                    } else {
+                      return MarketProductItem(
+                        count: count,
+                        onAdd: () =>
+                            addProductCount(product.id, product.price, product),
+                        onRemove: () =>
+                            removeProductCount(product.id, product.price),
+                        marketProductItemModel: product,
+                      );
+                    }
                   }),
                 ),
               )),

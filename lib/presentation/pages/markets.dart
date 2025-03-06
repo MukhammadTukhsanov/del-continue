@@ -23,8 +23,6 @@ class _MarketsState extends State<Markets> {
 
   int _activeIndex = 0;
 
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +38,6 @@ class _MarketsState extends State<Markets> {
 
     setState(() {
       _markets = data.map((map) {
-        print("map: $map");
         return ListItemModel.fromMap(map);
       }).toList();
       _filteredMarkets = _markets;
@@ -77,6 +74,7 @@ class _MarketsState extends State<Markets> {
       backgroundColor: Colors.white,
       appBar: AppBar(
           backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),
               child: Container(
@@ -105,44 +103,46 @@ class _MarketsState extends State<Markets> {
               ),
             ],
           )),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          ListTitle(title: "Mashhur do`konlar", icon: false),
-          SizedBox(
-            height: 243,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: _markets.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            ListTitle(title: "Mashhur do`konlar", icon: false),
+            SizedBox(
+              height: 243,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: _markets.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  return HorizontalListItem(listItemModel: _markets[index]);
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Divider(color: Color(0xffd8dae1), height: 1),
+            const SizedBox(height: 10),
+            HeaderSliderMenu(
+              data: marketsHeaderMenuItems,
+              activeIndex: _activeIndex,
+              onItemSelected: _handleFilterChange,
+            ),
+            const SizedBox(height: 10),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              itemCount: _filteredMarkets.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                return HorizontalListItem(listItemModel: _markets[index]);
+                return VerticalListItem(listItemModel: _filteredMarkets[index]);
               },
             ),
-          ),
-          const SizedBox(height: 10),
-          const Divider(color: Color(0xffd8dae1), height: 1),
-          const SizedBox(height: 10),
-          HeaderSliderMenu(
-            data: marketsHeaderMenuItems,
-            activeIndex: _activeIndex,
-            onItemSelected: _handleFilterChange,
-          ),
-          const SizedBox(height: 10),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            itemCount: _filteredMarkets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              return VerticalListItem(listItemModel: _filteredMarkets[index]);
-            },
-          )
-        ],
+          ],
+        ),
       ),
     );
   }

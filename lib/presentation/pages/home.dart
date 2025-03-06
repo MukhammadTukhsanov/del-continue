@@ -5,7 +5,7 @@ import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/category.dart';
 import 'package:geo_scraper_mobile/presentation/pages/main.dart';
 import 'package:geo_scraper_mobile/presentation/pages/orders.dart';
-import 'package:geo_scraper_mobile/presentation/pages/profil.dart';
+import 'package:geo_scraper_mobile/presentation/pages/profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

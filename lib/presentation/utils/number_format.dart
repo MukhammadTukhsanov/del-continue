@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
 
-String formatNumber(int number) {
+String formatNumber(dynamic number) {
   return NumberFormat("#,##0", "ru_RU").format(number).replaceAll(',', ' ');
 }
