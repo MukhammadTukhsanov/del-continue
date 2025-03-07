@@ -84,9 +84,8 @@ class _ProfileState extends State<Profile> {
           children: [
             _userInfo(),
             Visibility(
-                visible: user.isNotEmpty ? user[0]["isVerified"] : false,
+                visible: user.isNotEmpty && !(user[0]["isVerified"] ?? false),
                 child: Column(
-                  spacing: 16,
                   children: [
                     SizedBox(height: 16),
                     Container(
@@ -110,6 +109,7 @@ class _ProfileState extends State<Profile> {
                             ))
                           ],
                         )),
+                    SizedBox(height: 16),
                     CustomButton(
                         text: "Tasdiqlash",
                         onPressed: () {
@@ -249,7 +249,10 @@ class _ProfileState extends State<Profile> {
         Row(
           spacing: 6,
           children: [
-            Icon(Icons.verified, color: Colors.blue, size: 20),
+            Visibility(
+              visible: user.isNotEmpty && (user[0]["isVerified"] ?? false),
+              child: Icon(Icons.verified, color: Colors.blue, size: 20),
+            ),
             Text(
                 user.isNotEmpty
                     ? formatPhoneNumberWithSpace(user[0]["phoneNumber"])

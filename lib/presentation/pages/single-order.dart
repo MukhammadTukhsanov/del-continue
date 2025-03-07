@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
+import 'package:intl/intl.dart';
 
 class SingleOrder extends StatefulWidget {
+  String date;
   String orderId;
   String preparingStatus;
   String arriveBetween;
   String address;
-  // List products;
+  List products;
 
   SingleOrder(
       {super.key,
+      required this.date,
       required this.address,
       required this.arriveBetween,
       required this.orderId,
-      required this.preparingStatus});
+      required this.preparingStatus,
+      required this.products});
 
   @override
   _SingleOrderState createState() => _SingleOrderState();
@@ -21,19 +26,31 @@ class SingleOrder extends StatefulWidget {
 
 class _SingleOrderState extends State<SingleOrder> {
   @override
+  void initState() {
+    super.initState();
+    print("products: ${widget.products}");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
+        bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(
+              height: 1,
+              color: const Color(0xffd8dae1),
+            )),
         title: Row(
           children: [Text("Buyurtma "), Icon(Icons.tag), Text(widget.orderId)],
         ),
       ),
       body: SafeArea(
           child: Column(
-        spacing: 16,
+        // spacing: 16,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -49,7 +66,11 @@ class _SingleOrderState extends State<SingleOrder> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Buyurtmangiz jarayonda",
+                  widget.preparingStatus == "preparing"
+                      ? "Tayyorlanmoqda"
+                      : widget.preparingStatus == "onRoad"
+                          ? "Yo`lda"
+                          : "Bekor qilingan.",
                   style: TextStyle(
                       fontSize: 20,
                       color: Colors.white,
@@ -85,18 +106,27 @@ class _SingleOrderState extends State<SingleOrder> {
                     Expanded(
                         child: Container(
                       height: 4,
-                      color: Color(0x90ffffff),
+                      color: widget.preparingStatus == "onRoad" ||
+                              widget.preparingStatus == "successful"
+                          ? Color(0x90ffffff)
+                          : Color(0x20000000),
                     )),
                     Container(
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: widget.preparingStatus == "onRoad" ||
+                                  widget.preparingStatus == "successful"
+                              ? Colors.white
+                              : Color(0x20000000),
                           borderRadius: BorderRadius.circular(36)),
                       child: Center(
                         child: SvgPicture.asset(
                           "assets/icons/delivery.svg",
-                          color: Color(0xffff9556),
+                          color: widget.preparingStatus == "onRoad" ||
+                                  widget.preparingStatus == "successful"
+                              ? Color(0xffff9556)
+                              : Colors.white,
                           width: 26,
                         ),
                       ),
@@ -110,12 +140,16 @@ class _SingleOrderState extends State<SingleOrder> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                          color: Color(0x20000000),
+                          color: widget.preparingStatus == "successful"
+                              ? Colors.white
+                              : Color(0x20000000),
                           borderRadius: BorderRadius.circular(36)),
                       child: Center(
                         child: SvgPicture.asset(
                           "assets/icons/home.svg",
-                          color: Color(0xffffffff),
+                          color: widget.preparingStatus == "successful"
+                              ? Color(0xffff9556)
+                              : Color(0xffffffff),
                           width: 20,
                         ),
                       ),
@@ -125,68 +159,129 @@ class _SingleOrderState extends State<SingleOrder> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton(
-                onPressed: () {},
-                style: ButtonStyle(
-                    fixedSize: WidgetStatePropertyAll(Size.fromHeight(51)),
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Color(0xffff9556)),
-                        borderRadius: BorderRadius.circular(10))),
-                    elevation: WidgetStatePropertyAll(0),
-                    backgroundColor: WidgetStatePropertyAll(Colors.white)),
-                child: Row(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset("assets/icons/googleMaps.svg",
-                        color: Color(0xffff9556), width: 30),
-                    Text(
-                      "Xaritada kuzatish",
-                      style: TextStyle(color: Color(0xffff9556), fontSize: 20),
-                    )
-                  ],
-                )),
-          ),
-          Divider(
-            color: Color(0x203c486b),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              "Mahsulotlar (12)",
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  color: Color(0xff3c486b),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20),
+          SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(width: 1, color: Color(0xffD8DAE1)))),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: ElevatedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                      fixedSize: WidgetStatePropertyAll(Size.fromHeight(51)),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          side: BorderSide(width: 1, color: Color(0xffff9556)),
+                          borderRadius: BorderRadius.circular(10))),
+                      elevation: WidgetStatePropertyAll(0),
+                      backgroundColor: WidgetStatePropertyAll(Colors.white)),
+                  child: Row(
+                    spacing: 10,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset("assets/icons/googleMaps.svg",
+                          color: Color(0xffff9556), width: 30),
+                      Text(
+                        "Xaritada kuzatish",
+                        style:
+                            TextStyle(color: Color(0xffff9556), fontSize: 20),
+                      )
+                    ],
+                  )),
             ),
           ),
-          singleProduct(context)
+          SizedBox(height: 16),
+          Divider(
+            color: Color(0x203c486b),
+            height: 1,
+            endIndent: 0,
+          ),
+          Expanded(
+              child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                  child: Text(
+                    "Mahsulotlar (${widget.products.length})",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        color: Color(0xff3c486b),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20),
+                  ),
+                ),
+                SizedBox(height: 16),
+                ...[
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products,
+                  ...widget.products
+                ].asMap().entries.map((e) {
+                  var item = e.value;
+                  int index = e.key;
+                  return singleProduct(
+                      context,
+                      item["photo"],
+                      item["name"],
+                      item["measurementValue"],
+                      item["unitOfMeasure"],
+                      item["price"],
+                      item["count"]);
+                })
+              ],
+            ),
+          )),
+          Container(
+            decoration: BoxDecoration(
+                border: Border(
+                    top: BorderSide(width: 1, color: Color(0xffd8dae1)))),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Umumiy summa",
+                    style: TextStyle(
+                        color: Color(0xff3c486b),
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "12 000 So`m",
+                    style: TextStyle(
+                        color: Color(0xff3c486b),
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600),
+                  )
+                ],
+              ),
+            ),
+          ),
         ],
       )),
     );
   }
 
-  Container singleProduct(BuildContext context) {
+  Container singleProduct(BuildContext context, String photo, String name,
+      String measurementValue, String unitOfMeasure, String price, int count) {
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         spacing: 10,
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-                border: Border.all(width: 1, color: Color(0x203c486b)),
-                borderRadius: BorderRadius.circular(10),
-                image: const DecorationImage(
-                    image: NetworkImage(
-                        "https://www.coca-cola.com/content/dam/onexp/us/en/brands/coca-cola-original/en_coca-cola-original-taste-20-oz_750x750_v1.jpg/width1960.jpg"))),
-          ),
+          ShimmerLoaders.imageWithShimmer(context, photo, 100, 100),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +291,7 @@ class _SingleOrderState extends State<SingleOrder> {
                   children: [
                     Expanded(
                       child: Text(
-                        "Coca-cola",
+                        name,
                         style: TextStyle(
                             color: Color(0xff3c486b),
                             fontSize: 18,
@@ -208,18 +303,18 @@ class _SingleOrderState extends State<SingleOrder> {
                       decoration: BoxDecoration(
                           border: Border.all(color: Color(0x203c486b)),
                           borderRadius: BorderRadius.circular(10)),
-                      child: Text("X2",
+                      child: Text("X$count",
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600)),
                     )
                   ],
                 ),
-                Text("1.5 L",
+                Text("$measurementValue $unitOfMeasure",
                     style: TextStyle(
                         color: Color(0x903c486b),
                         fontSize: 16,
                         fontWeight: FontWeight.w600)),
-                Text("10 000 So`m",
+                Text("$price So`m",
                     style: TextStyle(
                         color: Color(0xff3c486b),
                         fontSize: 16,

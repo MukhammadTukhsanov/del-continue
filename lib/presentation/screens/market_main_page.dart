@@ -19,7 +19,8 @@ class _MarketMainPageState extends State<MarketMainPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.listItemModel.type == 'one-type' ||
+    if (widget.listItemModel.type == 'water' ||
+        widget.listItemModel.type == 'meat' ||
         widget.listItemModel.type == 'kitchen') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(

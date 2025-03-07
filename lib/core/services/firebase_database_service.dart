@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
@@ -99,20 +101,96 @@ class FirebaseDatabaseService {
     return null;
   }
 
-  Future<void> sendOrder(List<dynamic> data, String id, bool isDeliveryFree,
-      String deliveryPrice, int totalPrice) async {
+  Future<bool> sendOrder(
+      List<dynamic> data,
+      String marketId,
+      bool isDeliveryFree,
+      String deliveryPrice,
+      int totalPrice,
+      String userId) async {
+    String orderId = "";
+    bool exists = true;
+    int attempt = 0;
+    const int maxAttempts = 10;
+
+    while (exists && attempt < maxAttempts) {
+      orderId = (Random().nextInt(9000) + 1000).toString();
+      attempt++;
+
+      try {
+        var doc = await _firestore
+            .collection("markets")
+            .doc(marketId)
+            .collection("orders")
+            .doc(orderId)
+            .get();
+        exists = doc.exists;
+      } catch (e) {
+        print("Error checking order ID existence: $e");
+        return false;
+      }
+    }
+
+    if (exists) {
+      print(
+          "Failed to generate a unique order ID after $maxAttempts attempts.");
+      return false;
+    }
+
     try {
-      await _firestore.collection("markets").doc(id).collection("orders").add({
+      await _firestore
+          .collection("markets")
+          .doc(marketId)
+          .collection("orders")
+          .doc(orderId)
+          .set({
         "items": data,
         "totalPrice": totalPrice,
         "deliveryPrice": isDeliveryFree ? "free" : deliveryPrice,
         "createdAt": FieldValue.serverTimestamp(),
       });
-
-      print("Order sent successfully");
+      await _firestore
+          .collection("users")
+          .doc(userId)
+          .collection("orders")
+          .doc(orderId)
+          .set({
+        "items": data,
+        "totalPrice": totalPrice,
+        "deliveryPrice": isDeliveryFree ? "free" : deliveryPrice,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+      print("Order sent successfully with ID: $orderId");
+      return true;
     } catch (e) {
       print("Error sending order: $e");
+      return false;
     }
+  }
+
+  Future<List<Map<String, dynamic>>?> fetchOrdersList() async {
+    List<Map<String, dynamic>> fetchedUser =
+        await StorageService.getDataFromLocal(StorageType.userInfo);
+    String userId = fetchedUser[0]["phoneNumber"];
+
+    try {
+      CollectionReference ordersRef =
+          _firestore.collection("users").doc(userId).collection("orders");
+
+      QuerySnapshot querySnapshot = await ordersRef.get();
+
+      List<Map<String, dynamic>> ordersList = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> orderData = doc.data() as Map<String, dynamic>;
+        orderData['id'] = doc.id; // Add document ID to the order data
+        return orderData;
+      }).toList();
+
+      print("Orders List: $ordersList");
+      return ordersList;
+    } catch (e) {
+      print("Error getting orders list: $e");
+    }
+    return null;
   }
 
   Future<void> fetchUserInfo(String email) async {

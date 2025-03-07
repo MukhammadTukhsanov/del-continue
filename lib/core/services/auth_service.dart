@@ -17,13 +17,11 @@ class FirebaseAuthService {
         password: password,
       );
 
-      String userId = userCredential.user?.uid ?? ""; // Use UID as doc ID
-
-      await _firebaseFirestore.collection('users').doc(userId).set({
+      await _firebaseFirestore.collection('users').doc(email).set({
         'username': username,
         'surname': surname,
-        'phoneNumber':
-            email, // If this is actually a phone number, change the param name
+        'phoneNumber': email,
+        'isVerified': false
       });
 
       return null; // No error, registration successful

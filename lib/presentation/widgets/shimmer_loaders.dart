@@ -6,14 +6,15 @@ enum ShimmerLoadersItems { horizontalListItemShimmer, verticalListItemShimmer }
 
 class ShimmerLoaders {
   static Widget buildShimmerList(
-      BuildContext context, ShimmerLoadersItems shimmerType) {
+      BuildContext context, ShimmerLoadersItems shimmerType,
+      {int count = 3}) {
     if (shimmerType == ShimmerLoadersItems.horizontalListItemShimmer) {
       return SizedBox(
         height: 243,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          itemCount: 3,
+          itemCount: count,
           separatorBuilder: (_, __) => const SizedBox(width: 10),
           itemBuilder: (context, index) => _horizontalListItemShimmer(context),
         ),
@@ -24,7 +25,7 @@ class ShimmerLoaders {
         physics: NeverScrollableScrollPhysics(),
         scrollDirection: Axis.vertical,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: 3,
+        itemCount: count,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (context, index) => verticalListItemShimmer(context),
       );

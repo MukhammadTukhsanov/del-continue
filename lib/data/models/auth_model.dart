@@ -92,7 +92,6 @@ List<AuthModel> newPasswordPage = [
       {'type': 'password', 'text': 'Paroll kiriting'},
       {'type': 'password', 'text': 'Parollni tasdiqlang'},
     ],
-    // textAndLinkedText: {'text': "Akkountingiz bormi?", 'linkedText': "Kirish"},
     buttonText: "Tasdiqlash",
   ),
 ];

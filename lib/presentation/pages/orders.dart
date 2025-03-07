@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
+import 'package:geo_scraper_mobile/presentation/pages/home.dart';
 import 'package:geo_scraper_mobile/presentation/pages/single-order.dart';
+import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/custom_button.dart';
+import 'package:intl/intl.dart';
 
 class Orders extends StatefulWidget {
   const Orders({super.key});
@@ -34,6 +38,7 @@ const List<Map<String, String>> ordersList = [
 
 class _OrdersState extends State<Orders> {
   final List<bool> _selectedFruits = <bool>[true, false];
+  List<Map<String, dynamic>> data = [];
 
   @override
   void initState() {
@@ -42,6 +47,18 @@ class _OrdersState extends State<Orders> {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ));
+    _getOrdersLit();
+  }
+
+  Future<void> _getOrdersLit() async {
+    FirebaseDatabaseService databaseService = FirebaseDatabaseService();
+
+    List<Map<String, dynamic>>? orders =
+        await databaseService.fetchOrdersList();
+
+    setState(() {
+      data = orders!;
+    });
   }
 
   @override
@@ -131,41 +148,59 @@ class _OrdersState extends State<Orders> {
                   ),
                 ),
                 SizedBox(height: 10),
-                CustomButton(text: "Xarid qilishga o`ting", onPressed: () {})
+                CustomButton(
+                    text: "Xarid qilishga o`ting",
+                    onPressed: () {
+                      Navigator.push(
+                          context, MaterialPageRoute(builder: (_) => Home()));
+                    })
               ]),
             )))
           else if (_selectedFruits[0])
-            ...ordersList
-                .where((order) => order["orderStatus"] == "pending")
+            ...data
+                .where((order) =>
+                    order["orderStatus"] == "preparing" ||
+                    order["orderStatus"] == "onRoad")
                 .map((order) => orderItem(
-                        order["orderId"]!,
-                        order["orderDate"]!,
+                        order["id"]!,
+                        DateFormat("dd MMM yyyy - HH:mm")
+                            .format(order["createdAt"].toDate()),
                         order["orderStatus"]!,
-                        order["orderPrice"]!, () {
+                        formatNumber(order["totalPrice"]), () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => SingleOrder(
+                                  date: DateFormat("dd MMM yyyy - HH:mm")
+                                      .format(order["createdAt"].toDate()),
                                   address:
                                       "O`zbekiston ko`chasi, Peshku, Buxoro",
-                                  arriveBetween: "12:23 - 13:20",
-                                  orderId: order["orderId"]!,
-                                  preparingStatus: "inPlace")));
+                                  arriveBetween:
+                                      DateFormat("dd MMM yyyy - HH:mm")
+                                          .format(order["createdAt"].toDate()),
+                                  orderId: order["id"]!,
+                                  preparingStatus: order["orderStatus"],
+                                  products: order["items"])));
                     }))
           else if (_selectedFruits[1])
-            ...ordersList.map((item) => orderItem(
-                    item["orderId"]!,
-                    item["orderDate"]!,
+            ...data.map((item) => orderItem(
+                    item["id"]!,
+                    DateFormat("dd MMM yyyy - HH:mm")
+                        .format(item["createdAt"].toDate()),
                     item["orderStatus"]!,
-                    item["orderPrice"]!, () {
+                    formatNumber(item["totalPrice"]), () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => SingleOrder(
+                              date: DateFormat("dd MMM yyyy - HH:mm")
+                                  .format(item["createdAt"].toDate()),
                               address: "O`zbekiston ko`chasi, Peshku, Buxoro",
-                              arriveBetween: "12:23 - 13:20",
-                              orderId: item["orderId"]!,
-                              preparingStatus: "inPlace")));
+                              arriveBetween: DateFormat("dd MMM yyyy - HH:mm")
+                                  .format(item["createdAt"].toDate()),
+                              orderId: item["id"]!,
+                              preparingStatus: "inPlace",
+                              products: item["items"])));
                 })),
         ],
       )),
@@ -212,14 +247,14 @@ class _OrdersState extends State<Orders> {
                       decoration: BoxDecoration(
                           color: status == "successful"
                               ? Colors.green
-                              : status == "pending"
+                              : status == "preparing" || status == "onRoad"
                                   ? Color(0xffff9556)
                                   : Colors.red[800],
                           borderRadius: BorderRadius.circular(8))),
                   Text(
                     status == "successful"
                         ? "Buyurtma qabul qilingan."
-                        : status == "pending"
+                        : status == "preparing" || status == "onRoad"
                             ? "Yetkazilmoqda."
                             : "Bekor bo`lgan.",
                     style: TextStyle(

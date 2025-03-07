@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
-import 'package:geo_scraper_mobile/presentation/widgets/mainListItem.dart';
+import 'package:geo_scraper_mobile/presentation/pages/filtred_markets.dart';
+import 'package:geo_scraper_mobile/presentation/state/category_header_menu_items.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/vertical_list_item.dart';
 
@@ -38,12 +37,10 @@ class _CategoryState extends State<Category> {
       statusBarIconBrightness: Brightness.dark,
     ));
     await _getAddress();
-    // data = [
-    //   ...await StorageService.getDataFromLocal(StorageType.kitchens),
-    //   ...await StorageService.getDataFromLocal(StorageType.markets)
-    // ];
-    // print(data);
-    // data.shuffle(Random());
+    data = [
+      ...await StorageService.getDataFromLocal(StorageType.kitchens),
+      ...await StorageService.getDataFromLocal(StorageType.markets)
+    ];
   }
 
   Future<void> _getAddress() async {
@@ -95,11 +92,10 @@ class _CategoryState extends State<Category> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         bottom: PreferredSize(
-          preferredSize:
-              const Size.fromHeight(1), // Set the height of the border
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: const Color(0xffd8dae1), // Border color
-            height: 1, // Border height
+            color: const Color(0xffd8dae1),
+            height: 1,
           ),
         ),
       ),
@@ -112,97 +108,55 @@ class _CategoryState extends State<Category> {
                 border: Border(
                     bottom: BorderSide(width: 1, color: Color(0xffd8dae1)))),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                spacing: 16,
-                children: [
-                  Expanded(
-                      child: Column(
-                    spacing: 8,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/moreSales.png"),
-                            fit: BoxFit.cover,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween, // Adjust as needed
+                  children: categoryHeaderMenuItems
+                      .map(
+                        (e) => GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FiltredMarkets(
+                                  title: e["title"] ?? "",
+                                  data: data
+                                      .where(
+                                          (market) => market["type"] == e["id"])
+                                      .toList(),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            children: [
+                              Container(
+                                constraints: BoxConstraints(maxWidth: 85),
+                                width: 85, // Adjust width if needed
+                                height: 65,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(e["image"] ?? ""),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8), // ✅ Proper spacing
+                              Text(
+                                e["title"] ?? "",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xff3c486b),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      Text("Savdo",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xff3c486b),
-                              fontWeight: FontWeight.w600))
-                    ],
-                  )),
-                  Expanded(
-                      child: Column(
-                    spacing: 8,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/water.png"),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Text("Suv",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xff3c486b),
-                              fontWeight: FontWeight.w600))
-                    ],
-                  )),
-                  Expanded(
-                      child: Column(
-                    spacing: 8,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/meat.png"),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Text("Go`sht",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xff3c486b),
-                              fontWeight: FontWeight.w600))
-                    ],
-                  )),
-                  Expanded(
-                      child: Column(
-                    spacing: 8,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage("assets/images/foods.png"),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Text("Ovqat",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xff3c486b),
-                              fontWeight: FontWeight.w600))
-                    ],
-                  )),
-                ],
-              ),
-            ),
+                      )
+                      .toList(), // ✅ Convert map() to list
+                )),
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -229,7 +183,8 @@ class _CategoryState extends State<Category> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ShimmerLoaders.buildShimmerList(context,
-                            ShimmerLoadersItems.verticalListItemShimmer);
+                            ShimmerLoadersItems.verticalListItemShimmer,
+                            count: 6);
                       }
                       if (snapshot.hasError ||
                           !snapshot.hasData ||
@@ -262,6 +217,12 @@ class _CategoryState extends State<Category> {
               ),
             ),
           )
+        ],
+      )),
+    );
+  }
+}
+
           // MainListItem(
           //   deliveryPrice: "0",
           //   marketLogo:
@@ -270,8 +231,3 @@ class _CategoryState extends State<Category> {
           //   minOrderPrice: "10 000",
           //   placeName: "Korzinka",
           // )
-        ],
-      )),
-    );
-  }
-}

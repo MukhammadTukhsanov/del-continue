@@ -59,7 +59,6 @@ class _MarketProductsState extends State<MarketProducts> {
     setState(() {
       isLoading = true;
     });
-    // await Future.delayed(Duration(seconds: 24));
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
     List<Map<String, dynamic>>? productsData =
         await databaseService.fetchSingleMarket(
@@ -177,7 +176,9 @@ class _MarketProductsState extends State<MarketProducts> {
         body: SafeArea(
           child: Column(
             children: [
-              if (widget.type == "kitchen" || widget.type == "one-type")
+              if (widget.type == "kitchen" ||
+                  widget.type == "water" ||
+                  widget.type == "meat")
                 MainPagesHeader(listItemModel: widget.listItemModel!),
               if (widget.type.isEmpty)
                 Column(
