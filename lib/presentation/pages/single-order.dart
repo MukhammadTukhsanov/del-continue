@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
-import 'package:intl/intl.dart';
 
 class SingleOrder extends StatefulWidget {
   String date;
@@ -10,6 +10,7 @@ class SingleOrder extends StatefulWidget {
   String arriveBetween;
   String address;
   List products;
+  int totalPrice;
 
   SingleOrder(
       {super.key,
@@ -18,7 +19,8 @@ class SingleOrder extends StatefulWidget {
       required this.arriveBetween,
       required this.orderId,
       required this.preparingStatus,
-      required this.products});
+      required this.products,
+      required this.totalPrice});
 
   @override
   _SingleOrderState createState() => _SingleOrderState();
@@ -53,6 +55,7 @@ class _SingleOrderState extends State<SingleOrder> {
         // spacing: 16,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 16),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16),
             padding: EdgeInsets.all(16),
@@ -160,36 +163,30 @@ class _SingleOrderState extends State<SingleOrder> {
             ),
           ),
           SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(width: 1, color: Color(0xffD8DAE1)))),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-              child: ElevatedButton(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                      fixedSize: WidgetStatePropertyAll(Size.fromHeight(51)),
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          side: BorderSide(width: 1, color: Color(0xffff9556)),
-                          borderRadius: BorderRadius.circular(10))),
-                      elevation: WidgetStatePropertyAll(0),
-                      backgroundColor: WidgetStatePropertyAll(Colors.white)),
-                  child: Row(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset("assets/icons/googleMaps.svg",
-                          color: Color(0xffff9556), width: 30),
-                      Text(
-                        "Xaritada kuzatish",
-                        style:
-                            TextStyle(color: Color(0xffff9556), fontSize: 20),
-                      )
-                    ],
-                  )),
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            child: ElevatedButton(
+                onPressed: () {},
+                style: ButtonStyle(
+                    fixedSize: WidgetStatePropertyAll(Size.fromHeight(51)),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Color(0xffff9556)),
+                        borderRadius: BorderRadius.circular(10))),
+                    elevation: WidgetStatePropertyAll(0),
+                    backgroundColor: WidgetStatePropertyAll(Colors.white)),
+                child: Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset("assets/icons/googleMaps.svg",
+                        color: Color(0xffff9556), width: 30),
+                    Text(
+                      "Xaritada kuzatish",
+                      style: TextStyle(color: Color(0xffff9556), fontSize: 20),
+                    )
+                  ],
+                )),
           ),
           SizedBox(height: 16),
           Divider(
@@ -199,46 +196,37 @@ class _SingleOrderState extends State<SingleOrder> {
           ),
           Expanded(
               child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                  child: Text(
-                    "Mahsulotlar (${widget.products.length})",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: Color(0xff3c486b),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Column(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      "Mahsulotlar (${widget.products.length})",
+                      textAlign: TextAlign.start,
+                      style: TextStyle(
+                          color: Color(0xff3c486b),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20),
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                ...[
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products,
-                  ...widget.products
-                ].asMap().entries.map((e) {
-                  var item = e.value;
-                  int index = e.key;
-                  return singleProduct(
-                      context,
-                      item["photo"],
-                      item["name"],
-                      item["measurementValue"],
-                      item["unitOfMeasure"],
-                      item["price"],
-                      item["count"]);
-                })
-              ],
+                  ...widget.products.asMap().entries.map((e) {
+                    var item = e.value;
+                    int index = e.key;
+                    return singleProduct(
+                        context,
+                        item["photo"],
+                        item["name"],
+                        item["measurementValue"],
+                        item["unitOfMeasure"],
+                        item["price"],
+                        item["count"]);
+                  })
+                ],
+              ),
             ),
           )),
           Container(
@@ -258,7 +246,7 @@ class _SingleOrderState extends State<SingleOrder> {
                         fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    "12 000 So`m",
+                    "${formatNumber(widget.totalPrice)} so`m",
                     style: TextStyle(
                         color: Color(0xff3c486b),
                         fontSize: 22,

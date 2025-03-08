@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/auth_service.dart';
-import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
 import 'package:geo_scraper_mobile/data/models/auth_model.dart';
-import 'package:geo_scraper_mobile/presentation/pages/home.dart';
 import 'package:geo_scraper_mobile/presentation/pages/registration.dart';
 import 'package:geo_scraper_mobile/presentation/pages/send_otp.dart';
 import 'package:geo_scraper_mobile/presentation/screens/splash_screen.dart';
@@ -24,6 +23,11 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   String errorMessageText = "";
   bool isLoading = false;
+
+  bool market = false;
+  bool delivery = false;
+  bool client = true;
+
   DateTime? lastPressed;
   final GlobalKey<FormState> _loginKey = GlobalKey<FormState>();
   final List<TextEditingController> _loginPageControllers =
@@ -105,108 +109,217 @@ class _LoginState extends State<Login> {
             backgroundColor: Colors.white,
             body: Stack(children: [
               SafeArea(
-                child: Form(
-                  key: _loginKey,
-                  child: Center(
-                    child: ListView(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.all(16.0),
-                      children: loginPage.map((e) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 18,
-                            children: [
-                              Image.asset(
-                                e.logo,
-                                width: screenSize.width * 0.45,
+                child: Stack(children: [
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              market = false;
+                              delivery = true;
+                              client = false;
+                            });
+                          },
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                                color:
+                                    delivery ? Color(0xffff9556) : Colors.white,
+                                border: Border.all(
+                                    width: 2, color: Color(0xffff9556)),
+                                borderRadius: BorderRadius.circular(50)),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                "assets/icons/delivery.svg",
+                                width: 40,
+                                height: 40,
+                                colorFilter: delivery
+                                    ? ColorFilter.mode(
+                                        Colors.white, BlendMode.srcIn)
+                                    : const ColorFilter.mode(
+                                        Color(0xff3c486b),
+                                        BlendMode.srcIn,
+                                      ),
+                                placeholderBuilder: (BuildContext context) =>
+                                    const Icon(Icons.error),
                               ),
-                              Text(
-                                e.subtitle,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color:
-                                      const Color(0xff3C486B).withOpacity(0.7),
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              market = true;
+                              delivery = false;
+                              client = false;
+                            });
+                          },
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                                color:
+                                    market ? Color(0xffff9556) : Colors.white,
+                                border: Border.all(
+                                    width: 2, color: Color(0xffff9556)),
+                                borderRadius: BorderRadius.circular(50)),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                "assets/icons/market.svg",
+                                width: 40,
+                                height: 40,
+                                colorFilter: market
+                                    ? ColorFilter.mode(
+                                        Colors.white, BlendMode.srcIn)
+                                    : const ColorFilter.mode(
+                                        Color(0xff3c486b),
+                                        BlendMode.srcIn,
+                                      ),
+                                placeholderBuilder: (BuildContext context) =>
+                                    const Icon(Icons.error),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Form(
+                    key: _loginKey,
+                    child: Center(
+                      child: ListView(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.all(16.0),
+                        children: loginPage.map((e) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              spacing: 18,
+                              children: [
+                                Image.asset(
+                                  market
+                                      ? "assets/images/logo-market.png"
+                                      : delivery
+                                          ? "assets/images/logo-delivery.png"
+                                          : e.logo,
+                                  width: screenSize.width * 0.45,
                                 ),
-                              ),
-                              Visibility(
-                                  visible: errorMessageText.isNotEmpty,
-                                  child: Container(
-                                      width: double.infinity,
-                                      height: 36,
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 10),
-                                      decoration: BoxDecoration(
-                                          color: Colors.red[50],
-                                          borderRadius:
-                                              BorderRadius.circular(6)),
-                                      child: Row(
-                                        spacing: 6,
-                                        children: [
-                                          Icon(Icons.info_outline,
-                                              color: Colors.red),
-                                          Expanded(
-                                              child: Text(
-                                            errorMessageText,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
+                                Text(
+                                  e.subtitle,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    color: const Color(0xff3C486B)
+                                        .withOpacity(0.7),
+                                  ),
+                                ),
+                                Visibility(
+                                    visible: errorMessageText.isNotEmpty,
+                                    child: Container(
+                                        width: double.infinity,
+                                        height: 36,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        decoration: BoxDecoration(
+                                            color: Colors.red[50],
+                                            borderRadius:
+                                                BorderRadius.circular(6)),
+                                        child: Row(
+                                          spacing: 6,
+                                          children: [
+                                            Icon(Icons.info_outline,
                                                 color: Colors.red),
-                                          ))
-                                        ],
-                                      ))),
-                              ...e.inputs.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                var input = entry.value;
-                                return CustomTextField(
-                                  label: input['text'],
-                                  validator: (value) {
-                                    if ((value == null || value.isEmpty) &&
-                                        input["type"] == "phone") {
-                                      return "Telefon raqam kiriting";
-                                    } else if ((value == null ||
-                                            value.isEmpty) &&
-                                        input["type"] == "password") {
-                                      return "Iltimos, maxfiy kodni kiriting";
-                                    }
-                                    if (!isValidPhoneNumber(value!) &&
-                                        input["type"] == "phone") {
-                                      return "Telefon raqam xato kiritilgan (masalan: +998901234567)";
-                                    }
-                                    if (!isValidPassword(value) &&
-                                        input["type"] == "password") {
-                                      return "Kod 6–12 ta belgi bo‘lishi kerak (harflar, raqamlar, !@#\$%^&*)";
-                                    }
-                                    return null;
-                                  },
-                                  controller: _loginPageControllers[index],
-                                  keyboardType: input['type'] == "phone"
-                                      ? TextInputType.phone
-                                      : TextInputType.text,
-                                  inputFormatters: input['type'] == "phone"
-                                      ? [PhoneNumberFormatter()]
-                                      : [
-                                          LengthLimitingTextInputFormatter(12),
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[A-Za-z0-9!@#$%^&*]')),
-                                        ],
-                                );
-                              }),
-                              if (e.textWithLink != null)
-                                Transform.translate(
-                                  offset:
-                                      Offset(screenSize.width / 2 - 125, -18),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => SendOtp()));
+                                            Expanded(
+                                                child: Text(
+                                              errorMessageText,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                  color: Colors.red),
+                                            ))
+                                          ],
+                                        ))),
+                                ...e.inputs.asMap().entries.map((entry) {
+                                  int index = entry.key;
+                                  var input = entry.value;
+                                  return CustomTextField(
+                                    label: input['text'],
+                                    validator: (value) {
+                                      if ((value == null || value.isEmpty) &&
+                                          input["type"] == "phone") {
+                                        return "Telefon raqam kiriting";
+                                      } else if ((value == null ||
+                                              value.isEmpty) &&
+                                          input["type"] == "password") {
+                                        return "Iltimos, maxfiy kodni kiriting";
+                                      }
+                                      if (!isValidPhoneNumber(value!) &&
+                                          input["type"] == "phone") {
+                                        return "Telefon raqam xato kiritilgan (masalan: +998901234567)";
+                                      }
+                                      if (!isValidPassword(value) &&
+                                          input["type"] == "password") {
+                                        return "Kod 6–12 ta belgi bo‘lishi kerak (harflar, raqamlar, !@#\$%^&*)";
+                                      }
+                                      return null;
                                     },
-                                    child: Text(
-                                      e.textWithLink!,
+                                    controller: _loginPageControllers[index],
+                                    keyboardType: input['type'] == "phone"
+                                        ? TextInputType.phone
+                                        : TextInputType.text,
+                                    inputFormatters: input['type'] == "phone"
+                                        ? [PhoneNumberFormatter()]
+                                        : [
+                                            LengthLimitingTextInputFormatter(
+                                                12),
+                                            FilteringTextInputFormatter.allow(
+                                                RegExp(r'[A-Za-z0-9!@#$%^&*]')),
+                                          ],
+                                  );
+                                }),
+                                if (e.textWithLink != null)
+                                  Transform.translate(
+                                    offset:
+                                        Offset(screenSize.width / 2 - 125, -18),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SendOtp()));
+                                      },
+                                      child: Text(
+                                        e.textWithLink!,
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: const Color(0xff3C486B)
+                                              .withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: CustomButton(
+                                    // type: e.buttonType,
+                                    text: e.buttonText,
+                                    onPressed: handleLogin,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      e.textAndLinkedText!['text'],
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
                                         fontSize: 20,
@@ -214,59 +327,37 @@ class _LoginState extends State<Login> {
                                             .withOpacity(0.7),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              SizedBox(
-                                width: double.infinity,
-                                child: CustomButton(
-                                  // type: e.buttonType,
-                                  text: e.buttonText,
-                                  onPressed: handleLogin,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    e.textAndLinkedText!['text'],
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: const Color(0xff3C486B)
-                                          .withOpacity(0.7),
+                                    const SizedBox(
+                                      width: 6,
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    width: 6,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const Registration()));
-                                    },
-                                    child: Text(
-                                      e.textAndLinkedText!['linkedText'],
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: const Color(0xffff9556)
-                                            .withOpacity(0.7),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const Registration()));
+                                      },
+                                      child: Text(
+                                        e.textAndLinkedText!['linkedText'],
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: const Color(0xffff9556)
+                                              .withOpacity(0.7),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
-                ),
+                ]),
               ),
               if (isLoading)
                 Container(

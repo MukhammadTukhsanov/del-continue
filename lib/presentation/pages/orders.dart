@@ -15,27 +15,6 @@ class Orders extends StatefulWidget {
   _OrdersState createState() => _OrdersState();
 }
 
-const List<Map<String, String>> ordersList = [
-  {
-    "orderId": "5252",
-    "orderDate": "24 May 2024 - 11:30",
-    "orderStatus": "pending",
-    "orderPrice": "100 000"
-  },
-  {
-    "orderId": "5252",
-    "orderDate": "24 May 2024 - 11:30",
-    "orderStatus": "successful",
-    "orderPrice": "100 000"
-  },
-  {
-    "orderId": "5252",
-    "orderDate": "24 May 2024 - 11:30",
-    "orderStatus": "canceled",
-    "orderPrice": "100 000"
-  },
-];
-
 class _OrdersState extends State<Orders> {
   final List<bool> _selectedFruits = <bool>[true, false];
   List<Map<String, dynamic>> data = [];
@@ -116,7 +95,7 @@ class _OrdersState extends State<Orders> {
             ),
           ),
           SizedBox(height: 24),
-          if (ordersList.isEmpty)
+          if (data.isEmpty)
             Expanded(
                 child: Center(
                     child: SizedBox(
@@ -171,16 +150,22 @@ class _OrdersState extends State<Orders> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => SingleOrder(
-                                  date: DateFormat("dd MMM yyyy - HH:mm")
-                                      .format(order["createdAt"].toDate()),
-                                  address:
-                                      "O`zbekiston ko`chasi, Peshku, Buxoro",
-                                  arriveBetween:
-                                      DateFormat("dd MMM yyyy - HH:mm")
-                                          .format(order["createdAt"].toDate()),
-                                  orderId: order["id"]!,
-                                  preparingStatus: order["orderStatus"],
-                                  products: order["items"])));
+                                    date: DateFormat("dd MMM yyyy - HH:mm")
+                                        .format(order["createdAt"].toDate()),
+                                    address:
+                                        "O`zbekiston ko`chasi, Peshku, Buxoro",
+                                    arriveBetween:
+                                        DateFormat("dd MMM yyyy - HH:mm")
+                                            .format(order["createdAt"]
+                                                .toDate()
+                                                .add(Duration(
+                                                    minutes: int.parse(order[
+                                                        "maxDeliveryTime"])))),
+                                    orderId: order["id"]!,
+                                    preparingStatus: order["orderStatus"],
+                                    products: order["items"],
+                                    totalPrice: order["totalPrice"],
+                                  )));
                     }))
           else if (_selectedFruits[1])
             ...data.map((item) => orderItem(
@@ -197,10 +182,14 @@ class _OrdersState extends State<Orders> {
                                   .format(item["createdAt"].toDate()),
                               address: "O`zbekiston ko`chasi, Peshku, Buxoro",
                               arriveBetween: DateFormat("dd MMM yyyy - HH:mm")
-                                  .format(item["createdAt"].toDate()),
+                                  .format(item["createdAt"].toDate().add(
+                                      Duration(
+                                          minutes: int.parse(
+                                              item["maxDeliveryTime"])))),
                               orderId: item["id"]!,
                               preparingStatus: "inPlace",
-                              products: item["items"])));
+                              products: item["items"],
+                              totalPrice: item["totalPrice"])));
                 })),
         ],
       )),

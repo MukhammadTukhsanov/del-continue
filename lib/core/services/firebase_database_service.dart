@@ -107,11 +107,14 @@ class FirebaseDatabaseService {
       bool isDeliveryFree,
       String deliveryPrice,
       int totalPrice,
-      String userId) async {
+      String userId,
+      String maxDeliveryTime) async {
     String orderId = "";
     bool exists = true;
     int attempt = 0;
     const int maxAttempts = 10;
+
+    var currentLocation = await StorageService.getUserLocation();
 
     while (exists && attempt < maxAttempts) {
       orderId = (Random().nextInt(9000) + 1000).toString();
@@ -148,6 +151,10 @@ class FirebaseDatabaseService {
         "totalPrice": totalPrice,
         "deliveryPrice": isDeliveryFree ? "free" : deliveryPrice,
         "createdAt": FieldValue.serverTimestamp(),
+        "maxDeliveryTime": maxDeliveryTime,
+        "orderStatus": "preparing",
+        "latitude": currentLocation?["latitude"]!,
+        "longitude": currentLocation?["longitude"]!,
       });
       await _firestore
           .collection("users")
@@ -159,6 +166,10 @@ class FirebaseDatabaseService {
         "totalPrice": totalPrice,
         "deliveryPrice": isDeliveryFree ? "free" : deliveryPrice,
         "createdAt": FieldValue.serverTimestamp(),
+        "maxDeliveryTime": maxDeliveryTime,
+        "orderStatus": "preparing",
+        "latitude": currentLocation?["latitude"]!,
+        "longitude": currentLocation?["longitude"]!,
       });
       print("Order sent successfully with ID: $orderId");
       return true;

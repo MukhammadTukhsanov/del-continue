@@ -132,11 +132,11 @@ class _ProfileState extends State<Profile> {
               }),
             ]),
             _buildProfileSection([
-              _buildProfileListItem("marker-pin", "Mening manzillarim", () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DeliveryAddress()));
-              }),
-              const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
+              // _buildProfileListItem("marker-pin", "Mening manzillarim", () {
+              //   Navigator.push(context,
+              //       MaterialPageRoute(builder: (context) => DeliveryAddress()));
+              // }),
+              // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
               _buildProfileListItem("receipt", "Saqlanganlar", () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => Favorites()));

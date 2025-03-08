@@ -27,13 +27,13 @@ class _MarketMainPageState extends State<MarketMainPage> {
           context,
           MaterialPageRoute(
             builder: (context) => MarketProducts(
-              listItemModel: widget.listItemModel,
-              id: widget.listItemModel.id,
-              type: widget.listItemModel.type,
-              afterFree: widget.listItemModel.deliveryPriceAfterFree,
-              activeIndex: 0,
-              deliveryPrice: widget.listItemModel.deliveryPrice,
-            ),
+                listItemModel: widget.listItemModel,
+                id: widget.listItemModel.id,
+                type: widget.listItemModel.type,
+                afterFree: widget.listItemModel.deliveryPriceAfterFree,
+                activeIndex: 0,
+                deliveryPrice: widget.listItemModel.deliveryPrice,
+                maxDeliveryTime: widget.listItemModel.maxDeliveryTime),
           ),
         );
       });
@@ -86,7 +86,9 @@ class _MarketMainPageState extends State<MarketMainPage> {
                                   afterFree: widget
                                       .listItemModel.deliveryPriceAfterFree,
                                   deliveryPrice:
-                                      widget.listItemModel.deliveryPrice))),
+                                      widget.listItemModel.deliveryPrice,
+                                  maxDeliveryTime:
+                                      widget.listItemModel.maxDeliveryTime))),
                       key: ValueKey("${item["imageSrc"]} + $index"),
                       child: Column(
                         children: [

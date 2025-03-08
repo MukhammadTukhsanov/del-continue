@@ -12,6 +12,7 @@ class Basket extends StatefulWidget {
   final String deliveryPrice;
   final String afterFree;
   final bool isDeliveryFree;
+  final String maxDeliveryTime;
   const Basket(
       {super.key,
       required this.totalPrice,
@@ -19,7 +20,8 @@ class Basket extends StatefulWidget {
       required this.id,
       required this.deliveryPrice,
       required this.afterFree,
-      required this.isDeliveryFree});
+      required this.isDeliveryFree,
+      required this.maxDeliveryTime});
 
   @override
   State<Basket> createState() => _BasketState();
@@ -262,11 +264,13 @@ class _BasketState extends State<Basket> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => OrderPayment(
-                                      id: widget.id,
-                                      isDeliveryFree: isDeliveryFree,
-                                      deliveryPrice: widget.deliveryPrice,
-                                      basket: products,
-                                      totalPrice: totalPrice)));
+                                        id: widget.id,
+                                        isDeliveryFree: isDeliveryFree,
+                                        deliveryPrice: widget.deliveryPrice,
+                                        basket: products,
+                                        totalPrice: totalPrice,
+                                        maxDeliveryTime: widget.maxDeliveryTime,
+                                      )));
                         },
                       ),
                     )

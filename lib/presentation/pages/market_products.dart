@@ -19,18 +19,19 @@ class MarketProducts extends StatefulWidget {
   final String afterFree;
   final String deliveryPrice;
   final String type;
+  final String maxDeliveryTime;
 
   final ListItemModel? listItemModel;
 
-  const MarketProducts({
-    super.key,
-    required this.activeIndex,
-    required this.id,
-    required this.afterFree,
-    required this.deliveryPrice,
-    this.listItemModel,
-    this.type = "",
-  });
+  const MarketProducts(
+      {super.key,
+      required this.activeIndex,
+      required this.id,
+      required this.afterFree,
+      required this.deliveryPrice,
+      this.listItemModel,
+      this.type = "",
+      required this.maxDeliveryTime});
 
   @override
   _MarketProductsState createState() => _MarketProductsState();
@@ -151,7 +152,8 @@ class _MarketProductsState extends State<MarketProducts> {
             id: widget.id,
             deliveryPrice: widget.deliveryPrice,
             afterFree: widget.afterFree,
-            isDeliveryFree: isDeliveryFree),
+            isDeliveryFree: isDeliveryFree,
+            maxDeliveryTime: widget.maxDeliveryTime),
       ),
     );
     if (result != null && result is Map<String, dynamic>) {

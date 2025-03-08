@@ -15,15 +15,16 @@ class OrderPayment extends StatefulWidget {
   final String deliveryPrice;
   final List<dynamic> basket;
   final int totalPrice;
+  final String maxDeliveryTime;
 
-  const OrderPayment({
-    super.key,
-    required this.id,
-    required this.isDeliveryFree,
-    required this.deliveryPrice,
-    required this.basket,
-    required this.totalPrice,
-  });
+  const OrderPayment(
+      {super.key,
+      required this.id,
+      required this.isDeliveryFree,
+      required this.deliveryPrice,
+      required this.basket,
+      required this.totalPrice,
+      required this.maxDeliveryTime});
 
   @override
   _OrderPaymentState createState() => _OrderPaymentState();
@@ -69,8 +70,14 @@ class _OrderPaymentState extends State<OrderPayment> {
     });
   }
 
-  Future<void> sendOrder(List<dynamic> data, String id, bool isDeliveryFree,
-      String deliveryPrice, int totalPrice, BuildContext context) async {
+  Future<void> sendOrder(
+      List<dynamic> data,
+      String id,
+      bool isDeliveryFree,
+      String deliveryPrice,
+      int totalPrice,
+      String maxDeliveryTime,
+      BuildContext context) async {
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
 
     try {
@@ -78,7 +85,7 @@ class _OrderPaymentState extends State<OrderPayment> {
         isLoading = true;
       });
       bool success = await databaseService.sendOrder(data, id, isDeliveryFree,
-          deliveryPrice, totalPrice, user[0]["phoneNumber"]);
+          deliveryPrice, totalPrice, user[0]["phoneNumber"], maxDeliveryTime);
       setState(() {
         isLoading = false;
       });
@@ -449,6 +456,7 @@ class _OrderPaymentState extends State<OrderPayment> {
                                   widget.isDeliveryFree,
                                   widget.deliveryPrice,
                                   widget.totalPrice,
+                                  widget.maxDeliveryTime,
                                   context);
                             },
                           ))
