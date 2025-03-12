@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:geo_scraper_mobile/core/providers/basket_provider.dart';
 import 'package:geo_scraper_mobile/presentation/screens/onboarding.dart';
 import 'package:geo_scraper_mobile/presentation/screens/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';

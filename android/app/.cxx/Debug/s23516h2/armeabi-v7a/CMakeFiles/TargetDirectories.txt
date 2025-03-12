@@ -1,0 +1,2 @@
+/Users/mukhammad/Desktop/geo_scraper_mobile/android/app/.cxx/Debug/s23516h2/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/mukhammad/Desktop/geo_scraper_mobile/android/app/.cxx/Debug/s23516h2/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
+import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
 
 class MainPagesHeader extends StatelessWidget {
   final ListItemModel listItemModel;
@@ -12,17 +13,8 @@ class MainPagesHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Row(
         children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              image: DecorationImage(
-                image: NetworkImage(listItemModel.photo),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          ShimmerLoaders.imageWithShimmer(
+              context, listItemModel.photo, 120, 120),
           const SizedBox(width: 10),
           Expanded(
             child: Stack(children: [

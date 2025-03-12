@@ -69,9 +69,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
       await StorageService.saveAddress(address["street"]!, address["locality"]!,
           address["country"]!, address["region"]!);
-
-      // Navigator.pushReplacement(
-      //     context, MaterialPageRoute(builder: (_) => const Home()));
     } catch (e) {
       print('Error initializing address: $e');
       // Show error to user
