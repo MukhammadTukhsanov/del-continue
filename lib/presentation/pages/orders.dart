@@ -1,7 +1,11 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
+import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/presentation/pages/home.dart';
 import 'package:geo_scraper_mobile/presentation/pages/single-order.dart';
 import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
@@ -19,6 +23,9 @@ class _OrdersState extends State<Orders> {
   final List<bool> _selectedFruits = <bool>[true, false];
   List<Map<String, dynamic>> data = [];
 
+  List<Map<String, dynamic>> user = [];
+  StreamSubscription? _ordersSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -26,18 +33,52 @@ class _OrdersState extends State<Orders> {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ));
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    List<Map<String, dynamic>> fetchedUser =
+        await StorageService.getDataFromLocal(StorageType.userInfo);
+    setState(() {
+      user = fetchedUser;
+    });
     _getOrdersLit();
   }
 
-  Future<void> _getOrdersLit() async {
+  void _getOrdersLit() async {
     FirebaseDatabaseService databaseService = FirebaseDatabaseService();
 
-    List<Map<String, dynamic>>? orders =
-        await databaseService.fetchOrdersList();
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user[0]["phoneNumber"]) // Ensure you pass the logged-in user ID
+        .collection('orders')
+        .snapshots()
+        .listen((snapshot) {
+      if (!mounted) return;
+      List<Map<String, dynamic>> updatedOrders = [];
 
-    setState(() {
-      data = orders!;
+      for (var doc in snapshot.docs) {
+        updatedOrders.add({
+          "id": doc.id,
+          "orderStatus": doc["orderStatus"],
+          "totalPrice": doc["totalPrice"],
+          "createdAt": doc["createdAt"],
+          "maxDeliveryTime": doc["maxDeliveryTime"],
+          "items": doc["items"],
+        });
+      }
+      if (mounted) {
+        setState(() {
+          data = updatedOrders;
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _ordersSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -94,103 +135,134 @@ class _OrdersState extends State<Orders> {
               ),
             ),
           ),
-          SizedBox(height: 24),
-          if (data.isEmpty)
-            Expanded(
-                child: Center(
-                    child: SizedBox(
-              height: 261,
-              child: Column(children: [
-                Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                        color: Color(0x103c486b),
-                        borderRadius: BorderRadius.circular(100)),
-                    child: Center(
-                        child: SvgPicture.asset("assets/icons/bag-02.svg"))),
-                SizedBox(height: 10),
-                Text(
-                  "Xozircha bu yer bo`sh!",
-                  style: TextStyle(
-                      color: Color(0xff3c486b),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600),
-                ),
-                SizedBox(height: 24),
-                SizedBox(
-                  width: 220,
-                  child: Text(
-                    textAlign: TextAlign.center,
-                    "Iltimos buyurtma berush uchun, kategoriyaga o`ting",
-                    style: TextStyle(color: Color(0x903c486b), fontSize: 14),
-                  ),
-                ),
-                SizedBox(height: 10),
-                CustomButton(
-                    text: "Xarid qilishga o`ting",
-                    onPressed: () {
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (_) => Home()));
-                    })
-              ]),
-            )))
-          else if (_selectedFruits[0])
-            ...data
-                .where((order) =>
-                    order["orderStatus"] == "preparing" ||
-                    order["orderStatus"] == "onRoad")
-                .map((order) => orderItem(
-                        order["id"]!,
-                        DateFormat("dd MMM yyyy - HH:mm")
-                            .format(order["createdAt"].toDate()),
-                        order["orderStatus"]!,
-                        formatNumber(order["totalPrice"]), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SingleOrder(
-                                    date: DateFormat("dd MMM yyyy - HH:mm")
+          Expanded(
+            child: data.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Color(0x103c486b),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset("assets/icons/bag-02.svg"),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "Xozircha bu yer bo`sh!",
+                          style: TextStyle(
+                              color: Color(0xff3c486b),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        SizedBox(height: 24),
+                        SizedBox(
+                          width: 220,
+                          child: Text(
+                            textAlign: TextAlign.center,
+                            "Iltimos, buyurtma berish uchun, kategoriyaga o‘ting",
+                            style: TextStyle(
+                                color: Color(0x903c486b), fontSize: 14),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        CustomButton(
+                          text: "Xarid qilishga o‘ting",
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => Home()),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      children: _selectedFruits[0]
+                          ? data
+                              .where((order) =>
+                                  order["orderStatus"] == "preparing" ||
+                                  order["orderStatus"] == "onRoad")
+                              .map((order) => orderItem(
+                                    order["id"]!,
+                                    DateFormat("dd MMM yyyy - HH:mm")
                                         .format(order["createdAt"].toDate()),
-                                    address:
-                                        "O`zbekiston ko`chasi, Peshku, Buxoro",
-                                    arriveBetween:
-                                        DateFormat("dd MMM yyyy - HH:mm")
-                                            .format(order["createdAt"]
-                                                .toDate()
-                                                .add(Duration(
-                                                    minutes: int.parse(order[
-                                                        "maxDeliveryTime"])))),
-                                    orderId: order["id"]!,
-                                    preparingStatus: order["orderStatus"],
-                                    products: order["items"],
-                                    totalPrice: order["totalPrice"],
-                                  )));
-                    }))
-          else if (_selectedFruits[1])
-            ...data.map((item) => orderItem(
-                    item["id"]!,
-                    DateFormat("dd MMM yyyy - HH:mm")
-                        .format(item["createdAt"].toDate()),
-                    item["orderStatus"]!,
-                    formatNumber(item["totalPrice"]), () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SingleOrder(
-                              date: DateFormat("dd MMM yyyy - HH:mm")
-                                  .format(item["createdAt"].toDate()),
-                              address: "O`zbekiston ko`chasi, Peshku, Buxoro",
-                              arriveBetween: DateFormat("dd MMM yyyy - HH:mm")
-                                  .format(item["createdAt"].toDate().add(
-                                      Duration(
-                                          minutes: int.parse(
-                                              item["maxDeliveryTime"])))),
-                              orderId: item["id"]!,
-                              preparingStatus: "inPlace",
-                              products: item["items"],
-                              totalPrice: item["totalPrice"])));
-                })),
+                                    order["orderStatus"]!,
+                                    formatNumber(order["totalPrice"]),
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SingleOrder(
+                                            date: DateFormat(
+                                                    "dd MMM yyyy - HH:mm")
+                                                .format(order["createdAt"]
+                                                    .toDate()),
+                                            address:
+                                                "O‘zbekiston ko‘chasi, Peshku, Buxoro",
+                                            arriveBetween: DateFormat(
+                                                    "dd MMM yyyy - HH:mm")
+                                                .format(order["createdAt"]
+                                                    .toDate()
+                                                    .add(Duration(
+                                                        minutes: int.parse(order[
+                                                            "maxDeliveryTime"])))),
+                                            orderId: order["id"]!,
+                                            preparingStatus:
+                                                order["orderStatus"],
+                                            products: order["items"],
+                                            totalPrice: order["totalPrice"],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ))
+                              .toList()
+                          : data
+                              .map((item) => orderItem(
+                                    item["id"]!,
+                                    DateFormat("dd MMM yyyy - HH:mm")
+                                        .format(item["createdAt"].toDate()),
+                                    item["orderStatus"]!,
+                                    formatNumber(item["totalPrice"]),
+                                    () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SingleOrder(
+                                            date: DateFormat(
+                                                    "dd MMM yyyy - HH:mm")
+                                                .format(
+                                                    item["createdAt"].toDate()),
+                                            address:
+                                                "O‘zbekiston ko‘chasi, Peshku, Buxoro",
+                                            arriveBetween: DateFormat(
+                                                    "dd MMM yyyy - HH:mm")
+                                                .format(item["createdAt"]
+                                                    .toDate()
+                                                    .add(Duration(
+                                                        minutes: int.parse(item[
+                                                            "maxDeliveryTime"])))),
+                                            orderId: item["id"]!,
+                                            preparingStatus: "inPlace",
+                                            products: item["items"],
+                                            totalPrice: item["totalPrice"],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ))
+                              .toList(),
+                    ),
+                  ),
+          )
         ],
       )),
     );
@@ -243,9 +315,11 @@ class _OrdersState extends State<Orders> {
                   Text(
                     status == "successful"
                         ? "Buyurtma qabul qilingan."
-                        : status == "preparing" || status == "onRoad"
-                            ? "Yetkazilmoqda."
-                            : "Bekor bo`lgan.",
+                        : status == "preparing"
+                            ? "Tayyorlanmoqda."
+                            : status == "onRoad"
+                                ? "Yetkazilmoqda."
+                                : "Bekor bo`lgan.",
                     style: TextStyle(
                         color: Color(0x903c486b), fontWeight: FontWeight.w600),
                   )

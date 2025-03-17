@@ -155,6 +155,7 @@ class FirebaseDatabaseService {
         "orderStatus": "preparing",
         "latitude": currentLocation?["latitude"]!,
         "longitude": currentLocation?["longitude"]!,
+        "userId": userId
       });
       await _firestore
           .collection("users")
