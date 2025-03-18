@@ -155,7 +155,8 @@ class FirebaseDatabaseService {
         "orderStatus": "preparing",
         "latitude": currentLocation?["latitude"]!,
         "longitude": currentLocation?["longitude"]!,
-        "userId": userId
+        "userId": userId,
+        "isNew": true
       });
       await _firestore
           .collection("users")
@@ -171,6 +172,7 @@ class FirebaseDatabaseService {
         "orderStatus": "preparing",
         "latitude": currentLocation?["latitude"]!,
         "longitude": currentLocation?["longitude"]!,
+        "isNew": true
       });
       print("Order sent successfully with ID: $orderId");
       return true;

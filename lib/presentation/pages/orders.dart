@@ -67,6 +67,7 @@ class _OrdersState extends State<Orders> {
           "items": doc["items"],
         });
       }
+      updatedOrders.sort((a, b) => b["createdAt"].compareTo(a["createdAt"]));
       if (mounted) {
         setState(() {
           data = updatedOrders;
