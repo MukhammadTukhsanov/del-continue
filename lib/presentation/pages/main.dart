@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
 import 'package:geo_scraper_mobile/data/models/list_item_model.dart';
-import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
+import 'package:geo_scraper_mobile/presentation/coming-soon/index.dart';
+import 'package:geo_scraper_mobile/presentation/manual-address-selection-screen/index.dart';
 import 'package:geo_scraper_mobile/presentation/pages/all_items.dart';
+import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/horizontal_list_item.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/list_title.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/shimmer_loaders.dart';
@@ -38,12 +40,26 @@ List<Map<String, dynamic>> menuItems = [
   {
     "title": "Kuponlarim",
     "imagePath": "./assets/images/coupon.png",
-    "onTap": () {}
+    "onTap": (BuildContext context) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ComingSoonScreen(
+                    title: '',
+                  )));
+    }
   },
   {
     "title": "Kel ol",
     "imagePath": "./assets/images/delive.png",
-    "onTap": () {}
+    "onTap": (BuildContext context) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ComingSoonScreen(
+                    title: '',
+                  )));
+    }
   },
 ];
 
@@ -52,6 +68,7 @@ class _MainState extends State<Main> {
   String locality = "";
   String country = "";
   String region = "";
+  DateTime? lastBackPressed;
 
   @override
   void initState() {
@@ -69,6 +86,115 @@ class _MainState extends State<Main> {
     });
   }
 
+  Future<void> _changeAddress() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MapAddressSelectionScreen(),
+      ),
+    );
+
+    if (result == true) {
+      _getAddress();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Manzil yangilandi!'),
+          backgroundColor: Color(0xffff9556),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    const maxDuration = Duration(seconds: 2);
+    final isWarning = lastBackPressed == null ||
+        now.difference(lastBackPressed!) > maxDuration;
+
+    if (isWarning) {
+      lastBackPressed = DateTime.now();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Ilovadan chiqish uchun qaytadan "orqaga" tugmasini bosing',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Color(0xffff9556),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          margin: EdgeInsets.all(16),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> _showExitDialog() async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                'Ilovadan chiqish',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF222B45),
+                ),
+              ),
+              content: Text(
+                'Rostdan ham ilovadan chiqmoqchimisiz?',
+                style: TextStyle(
+                  color: Color(0xFF8F9BB3),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Yo\'q',
+                    style: TextStyle(
+                      color: Color(0xFF8F9BB3),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xffff9556),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Ha',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -78,28 +204,40 @@ class _MainState extends State<Main> {
       ),
     );
 
-    return Scaffold(
-      backgroundColor: const Color(0xffff9556),
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: const Color(0xffff9556),
-          onRefresh: () async =>
-              Future<void>.delayed(const Duration(seconds: 3)),
-          notificationPredicate: (notification) => notification.depth == 1,
-          child: SingleChildScrollView(
-            child: Column(
-              spacing: 4,
-              children: [
-                _address(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: CustomTextField(
-                    label: "Ovqatlar, Mahsulotlar",
-                    prefixIcon: Icons.search_rounded,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await _onWillPop();
+        if (shouldExit && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xffff9556),
+        body: SafeArea(
+          child: RefreshIndicator(
+            color: const Color(0xffff9556),
+            onRefresh: () async {
+              await _getAddress();
+              return Future<void>.delayed(const Duration(seconds: 1));
+            },
+            notificationPredicate: (notification) => notification.depth == 1,
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 4,
+                children: [
+                  _address(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: CustomTextField(
+                      label: "Ovqatlar, Mahsulotlar",
+                      prefixIcon: Icons.search_rounded,
+                    ),
                   ),
-                ),
-                _buildContentContainer(),
-              ],
+                  _buildContentContainer(),
+                ],
+              ),
             ),
           ),
         ),
@@ -115,12 +253,28 @@ class _MainState extends State<Main> {
         width: 26,
       ),
       title: Text("$street, $locality",
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
               fontSize: 20, color: Colors.white, fontWeight: FontWeight.w700)),
       subtitle: Text(
         "$region, $country",
         style: TextStyle(
             color: Colors.white, fontSize: 16, fontWeight: FontWeight.w400),
+      ),
+      trailing: GestureDetector(
+        onTap: _changeAddress,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.edit_location_alt,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
       ),
     );
   }

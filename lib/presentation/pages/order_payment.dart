@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/firebase_database_service.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
+import 'package:geo_scraper_mobile/presentation/manual-address-selection-screen/index.dart';
 import 'package:geo_scraper_mobile/presentation/pages/home.dart';
 import 'package:geo_scraper_mobile/presentation/utils/number_format.dart';
 import 'package:geo_scraper_mobile/presentation/utils/remove_spaces_and_convert_to_int.dart';
@@ -68,6 +69,19 @@ class _OrderPaymentState extends State<OrderPayment> {
 
       _addresController.text = "$street, $locality, $region, $country";
     });
+  }
+
+  // Fixed navigation method
+  Future<void> _navigateToMapSelection() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapAddressSelectionScreen(),
+      ),
+    );
+
+    // Refresh address after returning from map selection
+    await _getAddress();
   }
 
   Future<void> sendOrder(
@@ -253,12 +267,7 @@ class _OrderPaymentState extends State<OrderPayment> {
                                         width: 1),
                                     borderRadius: BorderRadius.circular(6)),
                                 child: IconButton(
-                                    onPressed: () {
-                                      // Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //         builder: (context) => const MapScreen()));
-                                    },
+                                    onPressed: _navigateToMapSelection,
                                     icon: const Icon(Icons.map_outlined)),
                               )
                             ],

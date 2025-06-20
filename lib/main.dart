@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:geo_scraper_mobile/presentation/no-internet/connectivity-wrapper.dart';
 import 'package:geo_scraper_mobile/presentation/screens/onboarding.dart';
 import 'package:geo_scraper_mobile/presentation/screens/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +27,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: hasSeenOnBoarding ? const SplashScreen() : OnboardingPage());
+        home: ConnectivityWrapper(
+            child:
+                hasSeenOnBoarding ? const SplashScreen() : OnboardingPage()));
   }
 }

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
-import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
+import 'package:geo_scraper_mobile/presentation/coming-soon/index.dart';
 import 'package:geo_scraper_mobile/presentation/pages/all_items.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
+import 'package:geo_scraper_mobile/presentation/pages/discounts.dart';
 import 'package:geo_scraper_mobile/presentation/widgets/text_field.dart';
 
 class Main extends StatefulWidget {
@@ -341,10 +341,10 @@ class ResentlyOrderedItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Domino`s Pizza",
                       style: TextStyle(
                           fontSize: 17,
@@ -353,24 +353,27 @@ class ResentlyOrderedItem extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star,
                           color: Color(0xfff8b84e),
                         ),
-                        SizedBox(width: 5),
-                        Text(
+                        const SizedBox(width: 5),
+                        const Text(
                           "4.0",
                           style: TextStyle(
                               color: Color(0xff000000),
                               fontWeight: FontWeight.w600,
                               fontSize: 17),
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          "(+100)",
-                          style: TextStyle(
-                              color: Color(0x703c486b),
-                              fontWeight: FontWeight.w600),
+                        const SizedBox(width: 10),
+                        TextButton(
+                          child: const Text(
+                            "(+100)",
+                            style: TextStyle(
+                                color: Color(0x703c486b),
+                                fontWeight: FontWeight.w600),
+                          ),
+                          onPressed: () {},
                         )
                       ],
                     )
@@ -501,12 +504,26 @@ class HeaderMenu extends StatelessWidget {
     {
       "title": "Kuponlarim",
       "imagePath": "./assets/images/coupon.png",
-      "onTap": () {}
+      "onTap": (BuildContext context) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ComingSoonScreen(
+                      title: '',
+                    )));
+      }
     },
     {
       "title": "Kel ol",
       "imagePath": "./assets/images/delive.png",
-      "onTap": () {}
+      "onTap": (BuildContext context) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ComingSoonScreen(
+                      title: '',
+                    )));
+      }
     },
   ];
 

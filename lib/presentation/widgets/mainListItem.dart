@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geo_scraper_mobile/presentation/screens/kitchen_product_item.dart';
 
 class MainListItem extends StatelessWidget {
   final String placeName;

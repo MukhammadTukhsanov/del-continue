@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geo_scraper_mobile/core/services/auth_service.dart';
 import 'package:geo_scraper_mobile/core/services/storage_service.dart';
-import 'package:geo_scraper_mobile/presentation/pages/deliveryAddress.dart';
 import 'package:geo_scraper_mobile/presentation/pages/editPhoneNumber.dart';
 import 'package:geo_scraper_mobile/presentation/pages/favorites.dart';
 import 'package:geo_scraper_mobile/presentation/pages/login.dart';
@@ -67,95 +66,195 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  DateTime? lastBackPressed;
+
+  Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    const maxDuration = Duration(seconds: 2);
+    final isWarning = lastBackPressed == null ||
+        now.difference(lastBackPressed!) > maxDuration;
+
+    if (isWarning) {
+      lastBackPressed = DateTime.now();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Ilovadan chiqish uchun qaytadan "orqaga" tugmasini bosing',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Color(0xffff9556),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          margin: EdgeInsets.all(16),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> _showExitDialog() async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                'Ilovadan chiqish',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF222B45),
+                ),
+              ),
+              content: Text(
+                'Rostdan ham ilovadan chiqmoqchimisiz?',
+                style: TextStyle(
+                  color: Color(0xFF8F9BB3),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Yo\'q',
+                    style: TextStyle(
+                      color: Color(0xFF8F9BB3),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xffff9556),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Ha',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark));
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(context),
-      body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: SingleChildScrollView(
-            child: Column(
-          children: [
-            _userInfo(),
-            Visibility(
-                visible: user.isNotEmpty && !(user[0]["isVerified"] ?? false),
-                child: Column(
-                  children: [
-                    SizedBox(height: 16),
-                    Container(
-                        width: double.infinity,
-                        height: 36,
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.red[50],
-                            borderRadius: BorderRadius.circular(6)),
-                        child: Row(
-                          spacing: 6,
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.red),
-                            Expanded(
-                                child: Text(
-                              "Telefon raqam tasdiqlanmagan!",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                  color: Colors.red),
-                            ))
-                          ],
-                        )),
-                    SizedBox(height: 16),
-                    CustomButton(
-                        text: "Tasdiqlash",
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => SendOtp(
-                                        isLogged: true,
-                                      )));
-                        },
-                        type: CustomButtonType.outline)
-                  ],
-                )),
-            _buildProfileSection([
-              // _buildProfileListItem("wallet", "Balans", () {}, "500 000 So`m"),
-              // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              _buildProfileListItem("transaction", "Tranzaksiyalar", () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Transactions()));
-              }),
-            ]),
-            _buildProfileSection([
-              // _buildProfileListItem("marker-pin", "Mening manzillarim", () {
-              //   Navigator.push(context,
-              //       MaterialPageRoute(builder: (context) => DeliveryAddress()));
-              // }),
-              // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              _buildProfileListItem("receipt", "Saqlanganlar", () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Favorites()));
-              }),
-            ]),
-            _buildProfileSection([
-              _buildProfileListItem("globe", "Qayta aloqa",
-                  () => _openFeedBackBottomDrawer(context)),
-              const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              _buildProfileListItem(
-                  "send", "Til", () => _openLanguageBottomDrawer(context)),
-              // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
-              // _buildProfileListItem("faq", "Savol va javoblar", () {}),
-            ]),
-            _buildDeleteButton(),
-            _buildLogoutButton(),
-          ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await _onWillPop();
+        if (shouldExit && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: _buildAppBar(context),
+        body: SafeArea(
+            child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: SingleChildScrollView(
+              child: Column(
+            children: [
+              _userInfo(),
+              Visibility(
+                  visible: user.isNotEmpty && !(user[0]["isVerified"] ?? false),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 16),
+                      Container(
+                          width: double.infinity,
+                          height: 36,
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.red[50],
+                              borderRadius: BorderRadius.circular(6)),
+                          child: Row(
+                            spacing: 6,
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.red),
+                              Expanded(
+                                  child: Text(
+                                "Telefon raqam tasdiqlanmagan!",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Colors.red),
+                              ))
+                            ],
+                          )),
+                      SizedBox(height: 16),
+                      CustomButton(
+                          text: "Tasdiqlash",
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => SendOtp(
+                                          isLogged: true,
+                                        )));
+                          },
+                          type: CustomButtonType.outline)
+                    ],
+                  )),
+              _buildProfileSection([
+                // _buildProfileListItem("wallet", "Balans", () {}, "500 000 So`m"),
+                // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
+                _buildProfileListItem("transaction", "Tranzaksiyalar", () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Transactions()));
+                }),
+              ]),
+              _buildProfileSection([
+                // _buildProfileListItem("marker-pin", "Mening manzillarim", () {
+                //   Navigator.push(context,
+                //       MaterialPageRoute(builder: (context) => DeliveryAddress()));
+                // }),
+                // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
+                _buildProfileListItem("receipt", "Saqlanganlar", () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Favorites()));
+                }),
+              ]),
+              _buildProfileSection([
+                _buildProfileListItem("globe", "Qayta aloqa",
+                    () => _openFeedBackBottomDrawer(context)),
+                const Divider(
+                    color: Color(0x203c486b), thickness: 1, height: 1),
+                _buildProfileListItem(
+                    "send", "Til", () => _openLanguageBottomDrawer(context)),
+                // const Divider(color: Color(0x203c486b), thickness: 1, height: 1),
+                // _buildProfileListItem("faq", "Savol va javoblar", () {}),
+              ]),
+              _buildDeleteButton(),
+              _buildLogoutButton(),
+            ],
+          )),
         )),
-      )),
+      ),
     );
   }
 
